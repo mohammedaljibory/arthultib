@@ -1,69 +1,76 @@
 import 'package:flutter/material.dart';
+import '../translations.dart';
 
 class AboutSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height , // زيادة الطول ليشغل مساحة أكبر
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-      child: Column(
-        children: [
-          Image.asset(
-            'assets/images/logo.png',
-            height: 100,
-          ),
-          SizedBox(height: 20),
-          Text(
-            'شريكك الموثوق في عالم المستلزمات الطبية!',
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[900],
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 600;
+
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 15 : 30,
+          vertical: isMobile ? 20 : 50,
+        ),
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              height: isMobile ? 60 : 100,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 15),
-          Text(
-            'تأسست شركة أرض الطب بهدف توفير حلول طبية متكاملة للأفراد والمستشفيات والعيادات الطبية.\n'
-                'نسعى دائمًا لنكون من الشركات الموردة للمستلزمات الطبية من خلال تقديم أحدث التقنيات وأفضل المنتجات الطبية.',
-            style: TextStyle(
-              fontSize: 25,
-              color: Colors.teal[800],
+            SizedBox(height: isMobile ? 10 : 20),
+            Text(
+              Translations.getText(context, 'aboutSectionTitle'),
+              style: TextStyle(
+                fontSize: isMobile ? 24 : 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[900],
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 50),
-          _buildSectionTitle('رؤيتنا'),
-          SizedBox(height: 15),
-          Text(
-            'أن نكون المورد الأول للمستلزمات الطبية في المنطقة، بتقديم منتجات موثوقة تلبي احتياجات السوق الطبي المتنامي.',
-            style: TextStyle(
-              fontSize: 25,
-              color: Colors.black,
+            SizedBox(height: isMobile ? 10 : 15),
+            Text(
+              Translations.getText(context, 'aboutSectionDescription'),
+              style: TextStyle(
+                fontSize: isMobile ? 16 : 25,
+                color: Colors.teal[800],
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 50),
-          _buildSectionTitle('رسالتنا'),
-          SizedBox(height: 15),
-          Text(
-            'تقديم منتجات طبية معتمدة تساعد في تحسين جودة الرعاية الصحية، مع التركيز على خدمة العملاء والابتكار المستمر.',
-            style: TextStyle(
-              fontSize: 25,
-              color: Colors.black,
+            SizedBox(height: isMobile ? 20 : 50),
+            _buildSectionTitle(Translations.getText(context, 'aboutVisionTitle'), isMobile),
+            SizedBox(height: isMobile ? 10 : 15),
+            Text(
+              Translations.getText(context, 'aboutVisionDescription'),
+              style: TextStyle(
+                fontSize: isMobile ? 16 : 25,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            SizedBox(height: isMobile ? 20 : 50),
+            _buildSectionTitle(Translations.getText(context, 'aboutMissionTitle'), isMobile),
+            SizedBox(height: isMobile ? 10 : 15),
+            Text(
+              Translations.getText(context, 'aboutMissionDescription'),
+              style: TextStyle(
+                fontSize: isMobile ? 16 : 25,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, bool isMobile) {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 50,
+        fontSize: isMobile ? 30 : 50,
         fontWeight: FontWeight.bold,
         color: Colors.blue[900],
       ),

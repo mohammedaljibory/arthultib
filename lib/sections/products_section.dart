@@ -1,167 +1,151 @@
 import 'package:flutter/material.dart';
+import '../translations.dart';
 
 class ProductsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth < 600 ? 20 : 40;
+    double padding = screenWidth < 600 ? 10 : 20;
+
     return Container(
       width: double.infinity,
-      height: MediaQuery.of(context).size.height * 1.2,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-      child: Stack(
-        alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: padding, vertical: padding * 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Positioned(
-            top: 0,
+          Text(
+            Translations.getText(context, 'productsSectionTitle'),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0288D1),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: padding),
+          Text(
+            Translations.getText(context, 'productsSectionDescription'),
+            style: TextStyle(
+              fontSize: fontSize * 0.6,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: padding * 2),
+          AnimatedButton(
+            onPressed: () {
+              // Show an AlertDialog instead of SnackBar
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(
+                      Translations.getText(context, 'appTitle'), // "المتجر" أو "Store"
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0288D1),
+                      ),
+                    ),
+                    content: Text(
+                      Translations.getText(context, 'storeComingSoon'),
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      textAlign: TextAlign.center,
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text(
+                          Translations.getText(context, 'close'),
+                          style: TextStyle(fontSize: 16, color: Color(0xFF0288D1)),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
             child: Text(
-              'المنتجات',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              Translations.getText(context, 'storeVisitButton'),
+              style: TextStyle(
+                fontSize: fontSize * 0.5,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0288D1),
-              ) ??
-                  TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0288D1),
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Positioned(
-            top: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildProductCategory(
-                  context,
-                  'القفازات',
-                  'assets/images/products.png',
-                  Color(0xFF00A8E8),
-                  width: 200,
-                ),
-                SizedBox(width: 20),
-                _buildProductCategory(
-                  context,
-                  'الأدوات واللوازم الطبية',
-                  'assets/images/P2.png',
-                  Color(0xFF00C4B4),
-                  width: 200,
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 340,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildProductCategory(
-                  context,
-                  'المستلزمات الطبية المتخصصة',
-                  'assets/images/P3.png',
-                  Color(0xFF0077B6),
-                  width: 200,
-                ),
-                SizedBox(width: 20),
-                _buildProductCategory(
-                  context,
-                  'الأجهزة الطبية',
-                  'assets/images/P1.png',
-                  Color(0xFF009B77),
-                  width: 200,
-                ),
-              ],
+                color: Colors.white,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildProductCategory(
-      BuildContext context, String title, String imagePath, Color color,
-      {double width = 200}) {
-    return GestureDetector(
-      onTap: () {
-        _showComingSoonDialog(context);
-      },
-      child: Container(
-        width: width,
-        height: 250,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: AssetImage(imagePath),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(color.withOpacity(0.7), BlendMode.srcOver),
-            onError: (exception, stackTrace) {
-              print('Error loading image $imagePath: $exception');
-            },
-          ),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ) ??
-                TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+class AnimatedButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  final Widget child;
+
+  const AnimatedButton({required this.onPressed, required this.child});
+
+  @override
+  _AnimatedButtonState createState() => _AnimatedButtonState();
+}
+
+class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
 
-  void _showComingSoonDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'قريبًا',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0288D1),
-            ) ??
-                TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0288D1),
-                ),
-          ),
-          content: Text(
-            'قريبًا سوف يتم افتتاح قسم المتجر',
-            style: Theme.of(context).textTheme.bodyLarge ??
-                TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                'إغلاق',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Color(0xFF0288D1),
-                ) ??
-                    TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF0288D1),
-                    ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        widget.onPressed();
       },
+      onTapCancel: () => _controller.reverse(),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF0288D1), Color(0xFF0277BD)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

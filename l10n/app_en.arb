@@ -1,0 +1,17 @@
+{
+  "appTitle": "Land of Medicine",
+  "homeSectionTitle": "Your Premier Destination for High-Quality Medical Supplies",
+  "aboutSectionTitle": "Your Trusted Partner in the World of Medical Supplies!",
+  "aboutSectionDescription": "Land of Medicine was established with the goal of providing comprehensive medical solutions for individuals, hospitals, and medical clinics.\nWe always strive to be among the leading suppliers of medical supplies by offering the latest technologies and the best medical products.",
+  "contactSectionTitle": "Contact Us",
+  "productsSectionTitle": "Products",
+  "gallerySectionTitle": "Gallery",
+  "originsSectionTitle": "Origins",
+  "storeVisitButton": "Visit Our Store",
+  "@appTitle": {
+    "description": "Title of the application"
+  },
+  "@homeSectionTitle": {
+    "description": "Title for the home section"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "appTitle": "أرض الطب",
+  "homeSectionTitle": "وجهتك الأولى للمستلزمات الطبية عالية الجودة",
+  "aboutSectionTitle": "شريكك الموثوق في عالم المستلزمات الطبية!",
+  "aboutSectionDescription": "تأسست شركة أرض الطب بهدف توفير حلول طبية متكاملة للأفراد والمستشفيات والعيادات الطبية.\nنسعى دائمًا لنكون من الشركات الموردة للمستلزمات الطبية من خلال تقديم أحدث التقنيات وأفضل المنتجات الطبية.",
+  "contactSectionTitle": "اتصل بنا",
+  "productsSectionTitle": "المنتجات",
+  "gallerySectionTitle": "معرض الصور",
+  "originsSectionTitle": "المناشئ",
+  "storeVisitButton": "زور متجرنا",
+  "@appTitle": {
+    "description": "Title of the application"
+  },
+  "@homeSectionTitle": {
+    "description": "Title for the home section"
+  }
+}

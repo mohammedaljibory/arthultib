@@ -1,0 +1,73 @@
+name: company_website
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.1.0
+  smooth_page_indicator: 1.2.1
+  photo_view: ^0.14.0
+  firebase_core: ^2.32.0
+  cloud_firestore: ^4.17.5
+  firebase_storage: ^11.7.7
+  cached_network_image: ^3.3.1
+  http: ^1.1.0
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  generate: true
+  assets:
+    - assets/images/homeBG.png
+    - assets/images/fullLogo.png
+    - assets/images/logo.png
+    - assets/images/products.png
+    - assets/images/P1.png
+    - assets/images/P2.png
+    - assets/images/P3.png
+    - assets/images/medtronic.png
+    - assets/images/philips.png
+    - assets/images/siemens.png
+    - assets/images/gehealthcare.png
+    - assets/images/bostonscientific.png
+    - assets/images/placeholder.png
+    - assets/images/gallery1.jpg
+    - assets/images/gallery2.jpg
+    - assets/images/gallery3.jpg
+    - assets/images/gallery4.jpg
+    - assets/images/gallery5.jpg
+    - assets/images/contact_background.jpg
+    - assets/images/Pr1.jpg
+    - assets/images/Pr2.jpg
+    - assets/images/Pr3.jpg
+    - assets/images/Pr4.jpg
+
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/ArbFONTS-Tajawal-Regular.ttf
+        - asset: assets/fonts/ArbFONTS-Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/ArbFONTS-Tajawal-Light.ttf
+          weight: 300
+  uses-material-design: true
+
+  l10n:
+    arb-dir: l10n
+    template-arb-file: app_ar.arb
+    output-localization-file: app_localizations.dart
+    output-dir: lib/generated

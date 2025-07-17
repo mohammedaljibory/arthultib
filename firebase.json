@@ -1,0 +1,55 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "medicalland-5f8dc",
+          "appId": "1:393831943:android:12f25bda7d44d13183aca2",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "medicalland-5f8dc",
+          "appId": "1:393831943:ios:895f62d8fa64cd8083aca2",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "medicalland-5f8dc",
+          "appId": "1:393831943:ios:895f62d8fa64cd8083aca2",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "medicalland-5f8dc",
+          "configurations": {
+            "android": "1:393831943:android:12f25bda7d44d13183aca2",
+            "ios": "1:393831943:ios:895f62d8fa64cd8083aca2",
+            "macos": "1:393831943:ios:895f62d8fa64cd8083aca2",
+            "web": "1:393831943:web:3d0192bc1e331df383aca2",
+            "windows": "1:393831943:web:e2cff8be26eb6bdc83aca2"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

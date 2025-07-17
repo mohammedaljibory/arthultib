@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'firebase_options.dart';
+import 'language_provider.dart';
+import 'translations.dart';
 import 'sections/home_section.dart';
-import 'sections/contact_section.dart';
 import 'sections/about_section.dart';
 import 'sections/products_section.dart';
 import 'sections/origins_section.dart';
 import 'sections/gallery_section.dart';
+import 'sections/contact_section.dart';
+import 'sections/store.dart';
+import 'utilis/upload_initial_data.dart';
 
-
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => LanguageProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,9 +32,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Tajawal',
+        fontFamily: Provider.of<LanguageProvider>(context).languageCode == 'ar' ? 'Tajawal' : 'Roboto',
+        primaryColor: Color(0xFF004080),
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: MainPage(),
+      home: StorePage(),
     );
   }
 }
@@ -30,108 +47,152 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final ScrollController _scrollController = ScrollController();
-  String activeSection = '';
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(() {
-      double offset = _scrollController.offset;
-      double screenHeight = MediaQuery.of(context).size.height;
-      setState(() {
-        if (offset < screenHeight * 0.8) {
-          activeSection = '';
-        } else if (offset < screenHeight * 1.8) {
-          activeSection = 'تعرف علينا';
-        } else if (offset < screenHeight * 2.8) {
-          activeSection = 'المنتجات';
-        } else if (offset < screenHeight * 3.8) {
-          activeSection = 'المناشئ';
-        } else {
-          activeSection = 'التواصل';
-        }
-      });
+  final List<Widget> sectionWidgets = [
+    HomeSection(),
+    AboutSection(),
+    ProductsSection(),
+    OriginsSection(),
+    GallerySection(),
+    ContactSection(),
+  ];
+
+  void _onSectionTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
     });
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isDesktop = screenWidth >= 600;
+    var languageProvider = Provider.of<LanguageProvider>(context);
+    final List<String> sections = languageProvider.languageCode == 'ar'
+        ? [
+      'الصفحة الرئيسية',
+      'تعرف علينا',
+      'المنتجات',
+      'المناشئ',
+      'المعرض',
+      'التواصل',
+    ]
+        : [
+      'Home',
+      'About Us',
+      'Products',
+      'Origins',
+      'Gallery',
+      'Contact',
+    ];
+
     return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                HomeSection(),
-                AboutSection(),
-                ProductsSection(),
-                OriginsSection(),
-                GallerySection(),
-                ContactSection(),
-
-              ],
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/fullLogo.png',
+              height: 50,
+              color: Colors.white,
             ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: NavigationBar(selected: activeSection),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NavigationBar extends StatelessWidget {
-  final String selected;
-  NavigationBar({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white.withOpacity(0.1),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              _buildNavButton('تعرف علينا', isHighlighted: selected == 'تعرف علينا'),
-              _buildNavButton('المنتجات', isHighlighted: selected == 'المنتجات'),
-              _buildNavButton('المناشئ', isHighlighted: selected == 'المناشئ'),
-              _buildNavButton('المعرض', isHighlighted: selected == 'المعرض'),
-              _buildNavButton('التواصل', isHighlighted: selected == 'التواصل'),
-            ],
-          ),
-          Image.asset(
-            'assets/images/fullLogo.png',
-            height: 100,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavButton(String title, {bool isHighlighted = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: isHighlighted ? Colors.blue[900] : Colors.transparent,
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            SizedBox(width: 10),
+          ],
         ),
-        onPressed: () {},
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isHighlighted ? Colors.white : Colors.black,
-          ),
+        actions: [
+          if (isDesktop) ...[
+            ...sections.reversed.map((section) {
+              int index = sections.indexOf(section);
+              return TextButton(
+                onPressed: () => _onSectionTapped(index),
+                child: Text(
+                  section,
+                  style: TextStyle(
+                    color: _selectedIndex == index ? Colors.yellow : Colors.white,
+                    fontWeight: _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              );
+            }).toList(),
+            // Language Switcher
+            IconButton(
+              icon: Icon(Icons.language, color: Colors.white),
+              tooltip: Translations.getText(context, 'changeLanguage'),
+              onPressed: () {
+                languageProvider.setLanguage(languageProvider.languageCode == 'ar' ? 'en' : 'ar');
+              },
+            ),
+            SizedBox(width: 10),
+          ],
+        ],
+      ),
+      drawer: !isDesktop
+          ? Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Center(
+                child: Text(
+                  Translations.getText(context, 'appTitle'),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            ...sections.map((section) {
+              int index = sections.indexOf(section);
+              return ListTile(
+                title: Text(
+                  section,
+                  style: TextStyle(
+                    color: _selectedIndex == index ? Theme.of(context).primaryColor : Colors.black,
+                    fontWeight: _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                onTap: () {
+                  _onSectionTapped(index);
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+            // Language Switcher in Drawer
+            ListTile(
+              leading: Icon(Icons.language),
+              title: Text(Translations.getText(context, 'changeLanguage')),
+              onTap: () {
+                languageProvider.setLanguage(languageProvider.languageCode == 'ar' ? 'en' : 'ar');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      )
+          : null,
+      body: Directionality(
+        textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+        child: PageView(
+          controller: _pageController,
+          scrollDirection: Axis.vertical,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: sectionWidgets,
         ),
       ),
     );
