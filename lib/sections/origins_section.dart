@@ -1,223 +1,397 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import '../translations.dart';
 import '../language_provider.dart';
 import 'package:provider/provider.dart';
 
-class OriginsSection extends StatelessWidget {
+class OriginsSection extends StatefulWidget {
+  @override
+  _OriginsSectionState createState() => _OriginsSectionState();
+}
+
+class _OriginsSectionState extends State<OriginsSection>
+    with AutomaticKeepAliveClientMixin {
+
+  @override
+  bool get wantKeepAlive => true;
+
+  // Cache the brands data
+  List<Map<String, String>>? _cachedBrands;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
+    bool isTablet = screenWidth >= 600 && screenWidth < 900;
 
-    return SingleChildScrollView(
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-        child: Column(
-          children: [
-            Text(
-              Translations.getText(context, 'originsSectionTitle'),
-              style: TextStyle(
-                fontSize: isMobile ? 24 : 40,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0288D1),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('posts').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  print('Error fetching data: ${snapshot.error}');
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      Translations.getText(context, 'originsNoData'),
-                      style: TextStyle(color: Colors.red, fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      Translations.getText(context, 'originsNoData'),
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-
-                var languageProvider = Provider.of<LanguageProvider>(context);
-                List<Map<String, String>> brands = snapshot.data!.docs.map((doc) {
-                  var data = doc.data() as Map<String, dynamic>;
-                  return {
-                    'name': languageProvider.languageCode == 'ar'
-                        ? (data['title_ar'] as String? ?? Translations.getText(context, 'notAvailable'))
-                        : (data['title_en'] as String? ?? Translations.getText(context, 'notAvailable')),
-                    'image': (data['url'] as String? ?? ''),
-                  };
-                }).toList();
-
-                return isMobile
-                    ? Column(
-                  children: brands
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                    int index = entry.key;
-                    Map<String, String> brand = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: _buildBrandCard(context, brand, screenWidth, index),
-                    );
-                  })
-                      .toList(),
-                )
-                    : Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (brands.length > 0) _buildBrandCard(context, brands[0], screenWidth, 0),
-                        if (brands.length > 0) SizedBox(width: 20),
-                        if (brands.length > 1) _buildBrandCard(context, brands[1], screenWidth, 1),
-                        if (brands.length > 1) SizedBox(width: 20),
-                        if (brands.length > 2) _buildBrandCard(context, brands[2], screenWidth, 2),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (brands.length > 3) _buildBrandCard(context, brands[3], screenWidth, 3),
-                        if (brands.length > 3) SizedBox(width: 20),
-                        if (brands.length > 4) _buildBrandCard(context, brands[4], screenWidth, 4),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 60 : 100,
+        horizontal: isMobile ? 20 : 40,
       ),
-    );
-  }
-
-  Widget _buildBrandCard(BuildContext context, Map<String, String> brand, double screenWidth, int index) {
-    String name = brand['name'] ?? Translations.getText(context, 'notAvailable');
-    String image = brand['image'] ?? '';
-
-    return GestureDetector(
-      key: ValueKey(index), // Add a unique key to avoid widget rebuilding issues
-      onTap: () {
-        _showBrandInfoDialog(context, name);
-      },
-      child: Container(
-        width: screenWidth < 600 ? screenWidth * 0.8 : 300,
-        height: screenWidth < 600 ? 100 : 150,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.grey[200],
-        ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            image.isNotEmpty
-                ? Image.network(
-              image,
-              fit: BoxFit.cover,
-              color: Color(0xFF00A8E8).withOpacity(0.7),
-              colorBlendMode: BlendMode.srcOver,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(child: CircularProgressIndicator());
-              },
-              errorBuilder: (context, error, stackTrace) {
-                print('Error loading image: $image, Error: $error');
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.broken_image, size: 50, color: Colors.red),
-                      SizedBox(height: 10),
-                      Text(
-                        Translations.getText(context, 'originsImageLoadError'),
-                        style: TextStyle(color: Colors.red, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            )
-                : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              // Section Header
+              Column(
                 children: [
-                  Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                  SizedBox(height: 10),
                   Text(
-                    Translations.getText(context, 'originsImageNotAvailable'),
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    Translations.getText(context, 'originsSectionTitle'),
+                    style: TextStyle(
+                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF004080),
+                      letterSpacing: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    width: 80,
+                    height: 2,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Color(0xFF0288D1),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            Center(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontSize: screenWidth < 600 ? 18 : 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
+
+              SizedBox(height: isMobile ? 40 : 60),
+
+              // Partners/Brands Grid with optimization
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('posts')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildShimmerGrid(isMobile, isTablet);
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  var languageProvider = Provider.of<LanguageProvider>(context);
+
+                  // Cache brands data to prevent recreation
+                  if (_cachedBrands == null || snapshot.data!.docChanges.isNotEmpty) {
+                    _cachedBrands = snapshot.data!.docs.map((doc) {
+                      var data = doc.data() as Map<String, dynamic>;
+                      return {
+                        'name': languageProvider.languageCode == 'ar'
+                            ? (data['title_ar'] as String? ?? '')
+                            : (data['title_en'] as String? ?? ''),
+                        'image': (data['url'] as String? ?? ''),
+                      };
+                    }).toList();
+                  }
+
+                  if (isMobile) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _cachedBrands!.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 20),
+                          child: OptimizedPartnerCard(
+                            brand: _cachedBrands![index],
+                            isMobile: isMobile,
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return Wrap(
+                      spacing: 30,
+                      runSpacing: 30,
+                      alignment: WrapAlignment.center,
+                      children: _cachedBrands!.map((brand) {
+                        return OptimizedPartnerCard(
+                          brand: brand,
+                          isMobile: isMobile,
+                        );
+                      }).toList(),
+                    );
+                  }
+                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _showBrandInfoDialog(BuildContext context, String brandName) {
+  Widget _buildEmptyState() {
+    return Container(
+      padding: EdgeInsets.all(40),
+      child: Column(
+        children: [
+          Icon(
+            Icons.handshake_outlined,
+            size: 60,
+            color: Colors.grey[400],
+          ),
+          SizedBox(height: 20),
+          Text(
+            Translations.getText(context, 'originsNoData'),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerGrid(bool isMobile, bool isTablet) {
+    return Wrap(
+      spacing: 30,
+      runSpacing: 30,
+      alignment: WrapAlignment.center,
+      children: List.generate(5, (index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: isMobile ? double.infinity : 250,
+            height: 150,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// Optimized Partner Card Widget
+class OptimizedPartnerCard extends StatefulWidget {
+  final Map<String, String> brand;
+  final bool isMobile;
+
+  const OptimizedPartnerCard({
+    Key? key,
+    required this.brand,
+    required this.isMobile,
+  }) : super(key: key);
+
+  @override
+  _OptimizedPartnerCardState createState() => _OptimizedPartnerCardState();
+}
+
+class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  bool _isHovered = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _showPartnerInfo(BuildContext context, String partnerName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            brandName,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0288D1),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(30),
+            constraints: BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.handshake_outlined,
+                  size: 48,
+                  color: Color(0xFF004080),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  partnerName,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF004080),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 15),
+                Text(
+                  Translations.getText(
+                    context,
+                    'brandInfoComingSoon',
+                    params: {'brandName': partnerName},
+                  ),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey[600],
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 25),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color(0xFF004080),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: Text(
+                    Translations.getText(context, 'close'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          content: Text(
-            Translations.getText(context, 'brandInfoComingSoon', params: {'brandName': brandName}),
-            style: TextStyle(fontSize: 18, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                Translations.getText(context, 'close'),
-                style: TextStyle(fontSize: 16, color: Color(0xFF0288D1)),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    String name = widget.brand['name'] ?? '';
+    String image = widget.brand['image'] ?? '';
+
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _animationController.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _animationController.reverse();
+      },
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              width: widget.isMobile ? double.infinity : 250,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(_isHovered ? 0.2 : 0.1),
+                    blurRadius: _isHovered ? 10 : 5,
+                    offset: Offset(0, _isHovered ? 4 : 2),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(15),
+                  onTap: () => _showPartnerInfo(context, name),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (image.isNotEmpty)
+                          Expanded(
+                            child: CachedNetworkImage(
+                              imageUrl: image,
+                              fit: BoxFit.contain,
+                              memCacheWidth: 300, // Optimize memory
+                              memCacheHeight: 150,
+                              fadeInDuration: Duration(milliseconds: 200),
+                              fadeOutDuration: Duration(milliseconds: 200),
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Icon(
+                                Icons.business,
+                                size: 40,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.business,
+                            size: 40,
+                            color: Colors.grey[400],
+                          ),
+                        SizedBox(height: 15),
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF004080),
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

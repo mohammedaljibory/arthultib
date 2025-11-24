@@ -1,30 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
+  <meta name="description" content="Arthultib - Your Premier Destination for High-Quality Medical Supplies">
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="company_website">
-  <meta name="description" content="Arthultib - Your Premier Destination for High-Quality Medical Supplies">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -32,11 +17,59 @@
 
   <title>Arthultib</title>
   <link rel="manifest" href="manifest.json">
-</head>
-<!-- Add reCAPTCHA container -->
-<div id="recaptcha-container"></div>
 
+  <script>
+    // The Firebase SDK script with updated configuration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('flutter-first-frame', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js');
+      });
+    }
+  </script>
+</head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+<!-- Firebase Configuration -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC3IXO6F3CfSxpJzwgi9cLXih6PLswwuP4",
+    authDomain: "medicalland-5f8dc.firebaseapp.com",
+    projectId: "medicalland-5f8dc",
+    storageBucket: "medicalland-5f8dc.firebasestorage.app",
+    messagingSenderId: "393831943",
+    appId: "1:393831943:web:3d0192bc1e331df383aca2",
+    measurementId: "G-S0R6FC1MLY"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // Initialize reCAPTCHA for phone auth
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    'size': 'invisible',
+    'callback': (response) => {
+      console.log('reCAPTCHA solved');
+    },
+    'expired-callback': () => {
+      console.log('reCAPTCHA expired');
+    }
+  });
+
+  // Make it globally available
+  window.recaptchaWidgetId = null;
+  window.confirmationResult = null;
+</script>
+
+<!-- Hidden container for invisible reCAPTCHA -->
+<div id="recaptcha-container" style="display: none;"></div>
+
+<!-- This script installs service_worker.js to provide PWA functionality to
+     application. For more information, see:
+     https://developers.google.com/web/fundamentals/primers/service-workers -->
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

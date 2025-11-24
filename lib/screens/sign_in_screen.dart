@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
@@ -20,9 +19,7 @@ class _SignInScreenState extends State<SignInScreen> {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      // Check if user exists
       bool userExists = await authProvider.checkUserExists(_phoneNumber);
-
       if (!userExists) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -33,7 +30,6 @@ class _SignInScreenState extends State<SignInScreen> {
         return;
       }
 
-      // Send OTP
       authProvider.sendOTP(
         phoneNumber: _phoneNumber,
         onCodeSent: (verificationId) {
@@ -49,10 +45,7 @@ class _SignInScreenState extends State<SignInScreen> {
         },
         onError: (error) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(error), backgroundColor: Colors.red),
           );
         },
       );
@@ -62,167 +55,204 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 900;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 60),
-
-                  // Logo
-                  Center(
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 100,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            shape: BoxShape.circle,
+        body: Row(
+          children: [
+            // Left side - Form
+            Expanded(
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 400),
+                  padding: EdgeInsets.all(24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Logo/Brand
+                        Center(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF004080).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'أ',
+                                    style: TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF004080),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 24),
+                              Text(
+                                'مرحباً بك',
+                                style: TextStyle(
+                                  fontSize: isDesktop ? 32 : 28,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'سجل دخولك للمتابعة',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Center(
+                        ),
+                        SizedBox(height: 48),
+
+                        // Phone Field
+                        IntlPhoneField(
+                          decoration: InputDecoration(
+                            labelText: 'رقم الهاتف',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          initialCountryCode: 'IQ',
+                          onChanged: (phone) {
+                            _phoneNumber = phone.completeNumber;
+                          },
+                          validator: (value) {
+                            if (value == null || value.number.isEmpty) {
+                              return 'الرجاء إدخال رقم الهاتف';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 32),
+
+                        // Sign In Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: authProvider.isLoading ? null : _proceedToOTP,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF004080),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: authProvider.isLoading
+                                ? SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : Text(
+                              'متابعة',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 24),
+
+                        // Sign Up Link
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('ليس لديك حساب؟ '),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(context, '/sign-up');
+                                },
+                                child: Text('إنشاء حساب'),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Skip Login
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, '/store');
+                            },
                             child: Text(
-                              'أ',
+                              'تصفح كزائر',
                               style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF004080),
+                                color: Colors.grey[600],
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Title
-                  Text(
-                    'مرحباً بك',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'سجل دخولك للمتابعة',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Phone number field
-                  IntlPhoneField(
-                    decoration: InputDecoration(
-                      labelText: 'رقم الهاتف',
-                      hintText: 'أدخل رقم هاتفك',
-                      prefixIcon: Icon(Icons.phone_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                    ),
-                    initialCountryCode: 'IQ',
-                    onChanged: (phone) {
-                      _phoneNumber = phone.completeNumber;
-                    },
-                    validator: (value) {
-                      if (value == null || value.number.isEmpty) {
-                        return 'الرجاء إدخال رقم الهاتف';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Sign in button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _proceedToOTP,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF004080),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                          : const Text(
-                        'متابعة',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Sign up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'ليس لديك حساب؟ ',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/sign-up');
-                        },
-                        child: const Text(
-                          'إنشاء حساب',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Skip login (optional)
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/store');
-                      },
-                      child: Text(
-                        'تصفح كزائر',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+
+            // Right side - Image (Desktop only)
+            if (isDesktop)
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF004080), Color(0xFF0066CC)],
+                    ),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.medical_services_outlined,
+                          size: 120,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        SizedBox(height: 32),
+                        Text(
+                          'أرض الطب',
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.white,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'وجهتك الأولى للمستلزمات الطبية',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

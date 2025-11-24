@@ -45,6 +45,7 @@ class DefaultFirebaseOptions {
     appId: '1:393831943:web:3d0192bc1e331df383aca2',
     messagingSenderId: '393831943',
     projectId: 'medicalland-5f8dc',
+    // authDomain: 'localhost',
     authDomain: 'medicalland-5f8dc.firebaseapp.com',
     storageBucket: 'medicalland-5f8dc.firebasestorage.app',
     measurementId: 'G-D1XRWXFSPD',
@@ -85,4 +86,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'medicalland-5f8dc.firebasestorage.app',
     measurementId: 'G-S0R6FC1MLY',
   );
+
 }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Arthultib - Your Premier Destination for High-Quality Medical Supplies">
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="company_website">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Arthultib</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+  apiKey: "AIzaSyC3IXO6F3CfSxpJzwgi9cLXih6PLswwuP4",
+  authDomain: "medicalland-5f8dc.firebaseapp.com",
+  projectId: "medicalland-5f8dc",
+  storageBucket: "medicalland-5f8dc.firebasestorage.app",
+  messagingSenderId: "393831943",
+  appId: "1:393831943:web:e2cff8be26eb6bdc83aca2",
+  measurementId: "G-S0R6FC1MLY"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // Initialize Auth
+  const auth = firebase.auth();
+
+  // Set up reCAPTCHA
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    'size': 'invisible',
+    'callback': (response) => {
+      // reCAPTCHA solved
+      console.log('reCAPTCHA verified');
+    },
+    'expired-callback': () => {
+      // Response expired
+      console.log('reCAPTCHA expired');
+    }
+  });
+
+  // Render the reCAPTCHA widget
+  window.recaptchaVerifier.render().then((widgetId) => {
+    window.recaptchaWidgetId = widgetId;
+    console.log('reCAPTCHA rendered with widget ID:', widgetId);
+  }).catch((error) => {
+    console.error('Error rendering reCAPTCHA:', error);
+  });
+</script>
+
+<!-- reCAPTCHA container -->
+<div id="recaptcha-container"></div>
+
+<script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

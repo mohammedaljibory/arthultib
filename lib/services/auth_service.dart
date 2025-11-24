@@ -25,34 +25,37 @@ class AuthService {
   }) async {
     try {
       if (kIsWeb) {
-        // For web platform - simple approach
+        _webConfirmationResult = null;
+        print('Starting web phone authentication for: $phoneNumber');
+
         try {
+          // Firebase SDK will use the recaptchaVerifier from index.html automatically
           _webConfirmationResult = await _auth.signInWithPhoneNumber(phoneNumber);
-          onCodeSent('web-verification');
+
+          if (_webConfirmationResult == null) {
+            throw Exception('Failed to initiate phone authentication');
+          }
+
+          print('SMS sent successfully');
+          onCodeSent(_webConfirmationResult!.verificationId);
         } catch (e) {
-          onError('خطأ في إرسال رمز التحقق: ${e.toString()}');
+          if (e.toString().contains('captcha-check-failed')) {
+            throw Exception('التحقق من reCAPTCHA فشل. حاول مرة أخرى');
+          }
+          throw e;
         }
       } else {
-        // For mobile platforms (iOS/Android)
+        // Mobile implementation stays the same
         await _auth.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) async {
-            // Auto-sign in on Android devices
-            try {
-              await _auth.signInWithCredential(credential);
-            } catch (e) {
-              print('Auto sign-in error: $e');
-            }
+            await _auth.signInWithCredential(credential);
           },
           verificationFailed: (FirebaseAuthException e) {
             if (e.code == 'invalid-phone-number') {
               onError('رقم الهاتف غير صحيح');
             } else if (e.code == 'too-many-requests') {
               onError('تم تجاوز عدد المحاولات المسموح. حاول لاحقاً');
-            } else if (e.code == 'missing-client-identifier') {
-              onError('يرجى التحقق من إعدادات Firebase');
-            } else if (e.code == 'app-not-authorized') {
-              onError('التطبيق غير مصرح له باستخدام Firebase Authentication');
             } else {
               onError(e.message ?? 'فشل التحقق');
             }
@@ -60,14 +63,25 @@ class AuthService {
           codeSent: (String verificationId, int? resendToken) {
             onCodeSent(verificationId);
           },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            // Auto-retrieval timeout
-            print('Auto retrieval timeout');
-          },
+          codeAutoRetrievalTimeout: (String verificationId) {},
+          timeout: const Duration(seconds: 60),
         );
       }
     } catch (e) {
-      onError('خطأ: ${e.toString()}');
+      String errorMessage = 'خطأ في إرسال رمز التحقق';
+
+      if (e.toString().contains('reCAPTCHA')) {
+        errorMessage = 'يرجى تحديث الصفحة والمحاولة مرة أخرى';
+      } else if (e.toString().contains('invalid-phone-number')) {
+        errorMessage = 'رقم الهاتف غير صحيح';
+      } else if (e.toString().contains('too-many-requests')) {
+        errorMessage = 'تم تجاوز عدد المحاولات. حاول بعد قليل';
+      } else if (e.toString().contains('captcha')) {
+        errorMessage = 'فشل التحقق الأمني. يرجى تحديث الصفحة';
+      }
+
+      onError(errorMessage);
+      print('Send OTP error: $e');
     }
   }
 
@@ -78,10 +92,8 @@ class AuthService {
   }) async {
     try {
       if (kIsWeb && _webConfirmationResult != null) {
-        // For web, use the stored confirmation result
         return await _webConfirmationResult!.confirm(smsCode);
       } else {
-        // For mobile platforms
         PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId,
           smsCode: smsCode,
@@ -93,6 +105,8 @@ class AuthService {
         throw Exception('رمز التحقق غير صحيح');
       } else if (e.code == 'invalid-verification-id') {
         throw Exception('معرف التحقق غير صحيح. حاول مرة أخرى');
+      } else if (e.code == 'session-expired') {
+        throw Exception('انتهت صلاحية الجلسة. حاول مرة أخرى');
       }
       throw Exception('خطأ في التحقق: ${e.message}');
     } catch (e) {
@@ -172,6 +186,6 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     await _auth.signOut();
-    _webConfirmationResult = null;
+    _webConfirmationResult = null; // Clear web confirmation on sign out
   }
 }

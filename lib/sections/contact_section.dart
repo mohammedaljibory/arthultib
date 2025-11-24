@@ -1,181 +1,269 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:ui' as ui;
 import '../translations.dart';
 import '../language_provider.dart';
 import 'package:provider/provider.dart';
 
-class ContactSection extends StatefulWidget {
-  @override
-  _ContactSectionState createState() => _ContactSectionState();
-}
-
-class _ContactSectionState extends State<ContactSection> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _titleAnimation;
-  late Animation<double> _subtitleAnimation;
-  late Animation<double> _infoAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 2000),
-    );
-
-    _titleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.0, 0.4, curve: Curves.easeInOut)),
-    );
-    _subtitleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.2, 0.6, curve: Curves.easeInOut)),
-    );
-    _infoAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.4, 0.8, curve: Curves.easeInOut)),
-    );
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class ContactSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
+    bool isTablet = screenWidth >= 600 && screenWidth < 900;
+    var languageProvider = Provider.of<LanguageProvider>(context);
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: isMobile ? screenWidth * 0.8 : MediaQuery.of(context).size.height * 0.7,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/contact_background.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ui.ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xFF1A7A74).withOpacity(0.9), Color(0xFF0288D1).withOpacity(0.9)],
-              ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 60 : 100,
+        horizontal: isMobile ? 20 : 40,
+      ),
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              // Section Header
+              Column(
                 children: [
-                  FadeTransition(
-                    opacity: _titleAnimation,
-                    child: Text(
-                      Translations.getText(context, 'contactSectionTitle'),
-                      style: TextStyle(
-                        fontSize: isMobile ? 30 : 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+                  Text(
+                    Translations.getText(context, 'contactSectionTitle'),
+                    style: TextStyle(
+                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF004080),
+                      letterSpacing: 1.5,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 10),
-                  FadeTransition(
-                    opacity: _subtitleAnimation,
-                    child: Text(
-                      Translations.getText(context, 'contactSectionSubtitle'),
-                      style: TextStyle(
-                        fontSize: isMobile ? 16 : 20,
-                        color: Colors.white,
+                  SizedBox(height: 15),
+                  Text(
+                    Translations.getText(context, 'contactSectionSubtitle'),
+                    style: TextStyle(
+                      fontSize: isMobile ? 15 : 17,
+                      color: Colors.grey[600],
+                      letterSpacing: 0.3,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    width: 80,
+                    height: 2,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Color(0xFF0288D1),
+                          Colors.transparent,
+                        ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            color: Colors.white,
-            child: FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('website_content').doc('main').get(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return Text('No data available');
-                }
 
-                var data = snapshot.data!.data() as Map<String, dynamic>;
-                var languageProvider = Provider.of<LanguageProvider>(context);
-                String companyName = languageProvider.languageCode == 'ar'
-                    ? data['company_name_ar'] ?? 'غير متوفر'
-                    : data['company_name_en'] ?? 'Not available';
-                String mobileNumbers = languageProvider.languageCode == 'ar'
-                    ? data['mobile_numbers_ar'] ?? 'غير متوفر'
-                    : data['mobile_numbers_en'] ?? 'Not available';
-                String email = languageProvider.languageCode == 'ar'
-                    ? data['email_ar'] ?? 'غير متوفر'
-                    : data['email_en'] ?? 'Not available';
+              SizedBox(height: isMobile ? 50 : 80),
 
-                return FadeTransition(
-                  opacity: _infoAnimation,
-                  child: isMobile
-                      ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildContactItem(context, Translations.getText(context, 'companyAddress'), companyName, isMobile),
-                      _buildContactItem(context, Translations.getText(context, 'callUs'), mobileNumbers, isMobile),
-                      _buildContactItem(context, Translations.getText(context, 'emailUs'), email, isMobile),
-                    ],
-                  )
-                      : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildContactItem(context, Translations.getText(context, 'companyAddress'), companyName, isMobile),
-                      _buildContactItem(context, Translations.getText(context, 'callUs'), mobileNumbers, isMobile),
-                      _buildContactItem(context, Translations.getText(context, 'emailUs'), email, isMobile),
+              // Contact Information
+              FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('website_content').doc('main').get(),
+                builder: (context, snapshot) {
+                  var languageProvider = Provider.of<LanguageProvider>(context);
+
+                  // Default values
+                  String companyName = languageProvider.languageCode == 'ar'
+                      ? 'شركة أرض الطب'
+                      : 'Arthultib Company';
+                  String mobileNumbers = '+964 xxx xxxx xxx';
+                  String email = 'info@arthultib.com';
+
+                  if (snapshot.hasData && snapshot.data!.exists) {
+                    var data = snapshot.data!.data() as Map<String, dynamic>;
+                    companyName = languageProvider.languageCode == 'ar'
+                        ? data['company_name_ar'] ?? companyName
+                        : data['company_name_en'] ?? companyName;
+                    mobileNumbers = languageProvider.languageCode == 'ar'
+                        ? data['mobile_numbers_ar'] ?? mobileNumbers
+                        : data['mobile_numbers_en'] ?? mobileNumbers;
+                    email = languageProvider.languageCode == 'ar'
+                        ? data['email_ar'] ?? email
+                        : data['email_en'] ?? email;
+                  }
+
+                  if (isMobile) {
+                    return Column(
+                      children: [
+                        _buildContactCard(
+                          icon: Icons.location_on_outlined,
+                          title: Translations.getText(context, 'companyAddress'),
+                          content: companyName,
+                          color: Color(0xFF004080),
+                          isMobile: isMobile,
+                        ),
+                        SizedBox(height: 25),
+                        _buildContactCard(
+                          icon: Icons.phone_outlined,
+                          title: Translations.getText(context, 'callUs'),
+                          content: mobileNumbers,
+                          color: Color(0xFF0288D1),
+                          isMobile: isMobile,
+                        ),
+                        SizedBox(height: 25),
+                        _buildContactCard(
+                          icon: Icons.email_outlined,
+                          title: Translations.getText(context, 'emailUs'),
+                          content: email,
+                          color: Color(0xFF00695C),
+                          isMobile: isMobile,
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: _buildContactCard(
+                            icon: Icons.location_on_outlined,
+                            title: Translations.getText(context, 'companyAddress'),
+                            content: companyName,
+                            color: Color(0xFF004080),
+                            isMobile: isMobile,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: _buildContactCard(
+                            icon: Icons.phone_outlined,
+                            title: Translations.getText(context, 'callUs'),
+                            content: mobileNumbers,
+                            color: Color(0xFF0288D1),
+                            isMobile: isMobile,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: _buildContactCard(
+                            icon: Icons.email_outlined,
+                            title: Translations.getText(context, 'emailUs'),
+                            content: email,
+                            color: Color(0xFF00695C),
+                            isMobile: isMobile,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
+
+              SizedBox(height: isMobile ? 60 : 80),
+
+              // Call to Action
+              Container(
+                padding: EdgeInsets.all(isMobile ? 30 : 50),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF004080).withOpacity(0.05),
+                      Color(0xFF0288D1).withOpacity(0.05),
                     ],
                   ),
-                );
-              },
-            ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.headset_mic_outlined,
+                      size: 48,
+                      color: Color(0xFF004080),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      languageProvider.languageCode == 'ar'
+                          ? 'نحن هنا لمساعدتك'
+                          : 'We\'re Here to Help',
+                      style: TextStyle(
+                        fontSize: isMobile ? 20 : 24,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF004080),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      languageProvider.languageCode == 'ar'
+                          ? 'فريقنا متاح للإجابة على جميع استفساراتك'
+                          : 'Our team is available to answer all your inquiries',
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 16,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildContactItem(BuildContext context, String title, String content, bool isMobile) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10),
+  Widget _buildContactCard({
+    required IconData icon,
+    required String title,
+    required String content,
+    required Color color,
+    required bool isMobile,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(isMobile ? 25 : 30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 5,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
       child: Column(
         children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 28,
+              color: color,
+            ),
+          ),
+          SizedBox(height: 20),
           Text(
             title,
             style: TextStyle(
-              fontSize: isMobile ? 20 : 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0288D1),
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+              letterSpacing: 0.3,
             ),
-            textAlign: TextAlign.center,
           ),
           SizedBox(height: 10),
-          Text(
+          SelectableText(
             content,
             style: TextStyle(
-              fontSize: isMobile ? 14 : 16,
-              color: Colors.black87,
+              fontSize: isMobile ? 15 : 17,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF004080),
+              letterSpacing: 0.5,
             ),
             textAlign: TextAlign.center,
           ),

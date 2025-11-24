@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Phone Auth Test</title>
+</head>
+<body>
+<h2>Minimal Test - Check Console for Errors</h2>
+<button onclick="testAuth()">Test Phone Auth</button>
+<div id="recaptcha"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+<script>
+    firebase.initializeApp({
+        apiKey: "AIzaSyC3IXO6F3CfSxpJzwgi9cLXih6PLswwuP4",
+        authDomain: "medicalland-5f8dc.firebaseapp.com",
+        projectId: "medicalland-5f8dc"
+    });
+
+    async function testAuth() {
+        try {
+            const auth = firebase.auth();
+            auth.useDeviceLanguage();
+
+            // Test with a US number first
+            const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha');
+            const result = await auth.signInWithPhoneNumber('+16505551234', recaptchaVerifier);
+            console.log('Success:', result);
+            alert('Check console - it worked!');
+        } catch (error) {
+            console.error('Error details:', error);
+            alert('Error: ' + error.code + ' - Check console');
+        }
+    }
+</script>
+</body>
+</html>
