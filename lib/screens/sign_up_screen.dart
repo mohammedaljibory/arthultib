@@ -220,7 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       ),
                                     ),
                                   ),
-                                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                                  Icon(Icons.arrow_back_ios, size: 16, color: Colors.grey),
                                 ],
                               ),
                             ),
@@ -235,6 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               onPressed: authProvider.isLoading ? null : _proceedToOTP,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF004080),
+                                foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),

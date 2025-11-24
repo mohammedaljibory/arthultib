@@ -180,7 +180,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: IconButton(
-                          icon: Icon(Icons.arrow_back),
+                          icon: Icon(Icons.arrow_back, color: Color(0xFF004080)),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
@@ -266,6 +266,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                           onPressed: authProvider.isLoading ? null : _verifyOTP,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF004080),
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

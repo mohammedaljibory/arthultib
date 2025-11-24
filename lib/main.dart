@@ -137,6 +137,8 @@ class _AuthStateHandlerState extends State<AuthStateHandler> {
             return MaterialPageRoute(builder: (_) => SearchPage());
             case '/account':
             return MaterialPageRoute(builder: (_) => AccountPage());
+            case '/address':
+            return MaterialPageRoute(builder: (_) => AddressSelectionScreen());
               default:
                 return MaterialPageRoute(builder: (_) => MedicalStorePage());
             }
@@ -535,14 +537,17 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         onSelected: (value) {
           switch (value) {
             case 'profile':
-            // Handle profile navigation
+              Navigator.pushNamed(context, '/account');
               break;
             case 'orders':
-            // Handle orders navigation
+              // Navigate to orders page (you can create this route later)
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(languageProvider.languageCode == 'ar' ? 'قريباً' : 'Coming soon')),
+              );
               break;
             case 'logout':
               authProvider.signOut();
-              Navigator.pushReplacementNamed(context, '/sign-in');
+              Navigator.pushReplacementNamed(context, '/');
               break;
           }
         },
@@ -740,7 +745,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 title: Text(languageProvider.languageCode == 'ar' ? 'الملف الشخصي' : 'Profile'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to profile
+                  Navigator.pushNamed(context, '/account');
                 },
               ),
               ListTile(
@@ -748,7 +753,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 title: Text(languageProvider.languageCode == 'ar' ? 'طلباتي' : 'My Orders'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to orders
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(languageProvider.languageCode == 'ar' ? 'قريباً' : 'Coming soon')),
+                  );
                 },
               ),
               ListTile(
@@ -760,7 +767,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.pop(context);
                   authProvider.signOut();
-                  Navigator.pushReplacementNamed(context, '/sign-in');
+                  Navigator.pushReplacementNamed(context, '/');
                 },
               ),
             ] else ...[

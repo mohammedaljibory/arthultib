@@ -150,6 +150,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             onPressed: authProvider.isLoading ? null : _proceedToOTP,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xFF004080),
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
