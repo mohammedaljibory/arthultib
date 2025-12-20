@@ -13,58 +13,56 @@ class ProductsSection extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100,
-        horizontal: isMobile ? 20 : 40,
+        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 48,
       ),
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              // Section Header
+              // Section Header - Modern Minimalist
               Column(
                 children: [
                   Text(
                     Translations.getText(context, 'productsSectionTitle'),
                     style: TextStyle(
-                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
-                      fontWeight: FontWeight.w300,
-                      color: Color(0xFF004080),
-                      letterSpacing: 1.5,
+                      fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 15),
-                  Text(
-                    Translations.getText(context, 'productsSectionDescription'),
-                    style: TextStyle(
-                      fontSize: isMobile ? 15 : 17,
-                      color: Colors.grey[600],
-                      letterSpacing: 0.3,
-                      height: 1.5,
+                  SizedBox(height: 16),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 500),
+                    child: Text(
+                      Translations.getText(context, 'productsSectionDescription'),
+                      style: TextStyle(
+                        fontSize: isMobile ? 15 : 17,
+                        color: Color(0xFF6B7280),
+                        letterSpacing: 0.2,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   Container(
-                    width: 80,
-                    height: 2,
+                    width: 48,
+                    height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Color(0xFF0288D1),
-                          Colors.transparent,
-                        ],
-                      ),
+                      color: Color(0xFF0066CC),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 50 : 80),
+              SizedBox(height: isMobile ? 56 : 80),
 
-              // Product Categories
+              // Product Categories - Modern Cards
               isMobile
                   ? Column(
                 children: [
@@ -77,7 +75,6 @@ class ProductsSection extends StatelessWidget {
                     description: languageProvider.languageCode == 'ar'
                         ? 'أحدث الأجهزة الطبية المتطورة'
                         : 'Latest advanced medical devices',
-                    color: Color(0xFF004080),
                     isMobile: isMobile,
                   ),
                   SizedBox(height: 20),
@@ -90,7 +87,6 @@ class ProductsSection extends StatelessWidget {
                     description: languageProvider.languageCode == 'ar'
                         ? 'جميع المستلزمات الطبية الضرورية'
                         : 'All essential medical supplies',
-                    color: Color(0xFF0288D1),
                     isMobile: isMobile,
                   ),
                   SizedBox(height: 20),
@@ -103,7 +99,6 @@ class ProductsSection extends StatelessWidget {
                     description: languageProvider.languageCode == 'ar'
                         ? 'معدات مختبرية عالية الدقة'
                         : 'High precision laboratory equipment',
-                    color: Color(0xFF00695C),
                     isMobile: isMobile,
                   ),
                 ],
@@ -121,11 +116,10 @@ class ProductsSection extends StatelessWidget {
                       description: languageProvider.languageCode == 'ar'
                           ? 'أحدث الأجهزة الطبية المتطورة'
                           : 'Latest advanced medical devices',
-                      color: Color(0xFF004080),
                       isMobile: isMobile,
                     ),
                   ),
-                  SizedBox(width: 30),
+                  SizedBox(width: 28),
                   Expanded(
                     child: _buildProductCard(
                       context: context,
@@ -136,11 +130,10 @@ class ProductsSection extends StatelessWidget {
                       description: languageProvider.languageCode == 'ar'
                           ? 'جميع المستلزمات الطبية الضرورية'
                           : 'All essential medical supplies',
-                      color: Color(0xFF0288D1),
                       isMobile: isMobile,
                     ),
                   ),
-                  SizedBox(width: 30),
+                  SizedBox(width: 28),
                   Expanded(
                     child: _buildProductCard(
                       context: context,
@@ -151,24 +144,27 @@ class ProductsSection extends StatelessWidget {
                       description: languageProvider.languageCode == 'ar'
                           ? 'معدات مختبرية عالية الدقة'
                           : 'High precision laboratory equipment',
-                      color: Color(0xFF00695C),
                       isMobile: isMobile,
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 60 : 80),
+              SizedBox(height: isMobile ? 64 : 80),
 
-              // Statistics/Features Row
+              // Statistics Row - Modern Design
               Container(
                 padding: EdgeInsets.symmetric(
-                  vertical: isMobile ? 30 : 40,
-                  horizontal: isMobile ? 20 : 40,
+                  vertical: isMobile ? 40 : 48,
+                  horizontal: isMobile ? 24 : 48,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xFF004080).withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Color(0xFFFAFBFC),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Color(0xFFF3F4F6),
+                    width: 1,
+                  ),
                 ),
                 child: isMobile
                     ? Column(
@@ -180,7 +176,7 @@ class ProductsSection extends StatelessWidget {
                           : 'Products Available',
                       icon: Icons.inventory_2_outlined,
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 32),
                     _buildStatItem(
                       number: '100+',
                       label: languageProvider.languageCode == 'ar'
@@ -188,7 +184,7 @@ class ProductsSection extends StatelessWidget {
                           : 'Trusted Brands',
                       icon: Icons.verified_outlined,
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 32),
                     _buildStatItem(
                       number: '24/7',
                       label: languageProvider.languageCode == 'ar'
@@ -211,7 +207,7 @@ class ProductsSection extends StatelessWidget {
                     Container(
                       height: 60,
                       width: 1,
-                      color: Colors.grey[300],
+                      color: Color(0xFFE5E7EB),
                     ),
                     _buildStatItem(
                       number: '100+',
@@ -223,7 +219,7 @@ class ProductsSection extends StatelessWidget {
                     Container(
                       height: 60,
                       width: 1,
-                      color: Colors.grey[300],
+                      color: Color(0xFFE5E7EB),
                     ),
                     _buildStatItem(
                       number: '24/7',
@@ -236,25 +232,25 @@ class ProductsSection extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: isMobile ? 60 : 80),
+              SizedBox(height: isMobile ? 48 : 64),
 
-              // CTA Button
+              // CTA Button - Modern Pill Style
               ElevatedButton.icon(
                 onPressed: () => Navigator.pushNamed(context, '/store'),
                 icon: Icon(Icons.store_outlined, size: 20),
                 label: Text(
                   Translations.getText(context, 'storeVisitButton'),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF004080),
+                  backgroundColor: Color(0xFF0066CC),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 30 : 40,
-                    vertical: isMobile ? 15 : 18,
+                    horizontal: isMobile ? 32 : 40,
+                    vertical: isMobile ? 16 : 20,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   elevation: 0,
                 ),
@@ -271,72 +267,71 @@ class ProductsSection extends StatelessWidget {
     required IconData icon,
     required String title,
     required String description,
-    required Color color,
     required bool isMobile,
   }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(24),
         onTap: () => Navigator.pushNamed(context, '/store'),
         child: Container(
-          padding: EdgeInsets.all(isMobile ? 25 : 30),
+          padding: EdgeInsets.all(isMobile ? 28 : 36),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: color.withOpacity(0.1),
+              color: Color(0xFFF3F4F6),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.05),
-                blurRadius: 8,
-                offset: Offset(0, 5),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 24,
+                offset: Offset(0, 8),
               ),
             ],
           ),
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.all(15),
+                padding: EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  color: Color(0xFF0066CC).withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Icon(
                   icon,
                   size: 36,
-                  color: color,
+                  color: Color(0xFF0066CC),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: isMobile ? 18 : 20,
-                  fontWeight: FontWeight.w500,
-                  color: color,
-                  letterSpacing: 0.5,
+                  fontSize: isMobile ? 20 : 22,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A1A),
+                  letterSpacing: -0.3,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 12),
               Text(
                 description,
                 style: TextStyle(
-                  fontSize: isMobile ? 13 : 14,
-                  color: Colors.grey[600],
-                  height: 1.5,
+                  fontSize: isMobile ? 14 : 15,
+                  color: Color(0xFF6B7280),
+                  height: 1.6,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(50),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -346,15 +341,15 @@ class ProductsSection extends StatelessWidget {
                           ? 'استكشف'
                           : 'Explore',
                       style: TextStyle(
-                        color: color,
+                        color: Color(0xFF1A1A1A),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(width: 5),
+                    SizedBox(width: 6),
                     Icon(
                       Icons.arrow_forward,
-                      color: color,
+                      color: Color(0xFF1A1A1A),
                       size: 16,
                     ),
                   ],
@@ -374,26 +369,34 @@ class ProductsSection extends StatelessWidget {
   }) {
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 32,
-          color: Color(0xFF0288D1),
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xFF0066CC).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            icon,
+            size: 28,
+            color: Color(0xFF0066CC),
+          ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 16),
         Text(
           number,
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF004080),
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1A1A1A),
+            letterSpacing: -1,
           ),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: 6),
         Text(
           label,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[600],
+            color: Color(0xFF6B7280),
           ),
           textAlign: TextAlign.center,
         ),

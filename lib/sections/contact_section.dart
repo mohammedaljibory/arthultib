@@ -14,57 +14,56 @@ class ContactSection extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100,
-        horizontal: isMobile ? 20 : 40,
+        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 48,
       ),
       child: Center(
         child: Container(
-          constraints: BoxConstraints(maxWidth: 1200),
+          constraints: BoxConstraints(maxWidth: 1100),
           child: Column(
             children: [
-              // Section Header
+              // Section Header - Modern Minimalist
               Column(
                 children: [
                   Text(
                     Translations.getText(context, 'contactSectionTitle'),
                     style: TextStyle(
-                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
-                      fontWeight: FontWeight.w300,
-                      color: Color(0xFF004080),
-                      letterSpacing: 1.5,
+                      fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 15),
-                  Text(
-                    Translations.getText(context, 'contactSectionSubtitle'),
-                    style: TextStyle(
-                      fontSize: isMobile ? 15 : 17,
-                      color: Colors.grey[600],
-                      letterSpacing: 0.3,
+                  SizedBox(height: 16),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: Text(
+                      Translations.getText(context, 'contactSectionSubtitle'),
+                      style: TextStyle(
+                        fontSize: isMobile ? 15 : 17,
+                        color: Color(0xFF6B7280),
+                        letterSpacing: 0.2,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   Container(
-                    width: 80,
-                    height: 2,
+                    width: 48,
+                    height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Color(0xFF0288D1),
-                          Colors.transparent,
-                        ],
-                      ),
+                      color: Color(0xFF0066CC),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 50 : 80),
+              SizedBox(height: isMobile ? 56 : 80),
 
-              // Contact Information
+              // Contact Information Cards
               FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance.collection('website_content').doc('main').get(),
                 builder: (context, snapshot) {
@@ -97,57 +96,51 @@ class ContactSection extends StatelessWidget {
                           icon: Icons.location_on_outlined,
                           title: Translations.getText(context, 'companyAddress'),
                           content: companyName,
-                          color: Color(0xFF004080),
                           isMobile: isMobile,
                         ),
-                        SizedBox(height: 25),
+                        SizedBox(height: 20),
                         _buildContactCard(
                           icon: Icons.phone_outlined,
                           title: Translations.getText(context, 'callUs'),
                           content: mobileNumbers,
-                          color: Color(0xFF0288D1),
                           isMobile: isMobile,
                         ),
-                        SizedBox(height: 25),
+                        SizedBox(height: 20),
                         _buildContactCard(
                           icon: Icons.email_outlined,
                           title: Translations.getText(context, 'emailUs'),
                           content: email,
-                          color: Color(0xFF00695C),
                           isMobile: isMobile,
                         ),
                       ],
                     );
                   } else {
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
                           child: _buildContactCard(
                             icon: Icons.location_on_outlined,
                             title: Translations.getText(context, 'companyAddress'),
                             content: companyName,
-                            color: Color(0xFF004080),
                             isMobile: isMobile,
                           ),
                         ),
-                        SizedBox(width: 30),
+                        SizedBox(width: 28),
                         Expanded(
                           child: _buildContactCard(
                             icon: Icons.phone_outlined,
                             title: Translations.getText(context, 'callUs'),
                             content: mobileNumbers,
-                            color: Color(0xFF0288D1),
                             isMobile: isMobile,
                           ),
                         ),
-                        SizedBox(width: 30),
+                        SizedBox(width: 28),
                         Expanded(
                           child: _buildContactCard(
                             icon: Icons.email_outlined,
                             title: Translations.getText(context, 'emailUs'),
                             content: email,
-                            color: Color(0xFF00695C),
                             isMobile: isMobile,
                           ),
                         ),
@@ -157,50 +150,84 @@ class ContactSection extends StatelessWidget {
                 },
               ),
 
-              SizedBox(height: isMobile ? 60 : 80),
+              SizedBox(height: isMobile ? 64 : 80),
 
-              // Call to Action
+              // Call to Action - Modern Style
               Container(
-                padding: EdgeInsets.all(isMobile ? 30 : 50),
+                padding: EdgeInsets.all(isMobile ? 36 : 56),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF004080).withOpacity(0.05),
-                      Color(0xFF0288D1).withOpacity(0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.headset_mic_outlined,
-                      size: 48,
-                      color: Color(0xFF004080),
+                    Container(
+                      padding: EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF0066CC).withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(
+                        Icons.headset_mic_outlined,
+                        size: 40,
+                        color: Color(0xFF0066CC),
+                      ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 28),
                     Text(
                       languageProvider.languageCode == 'ar'
                           ? 'نحن هنا لمساعدتك'
                           : 'We\'re Here to Help',
                       style: TextStyle(
-                        fontSize: isMobile ? 20 : 24,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF004080),
+                        fontSize: isMobile ? 24 : 28,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1A1A),
+                        letterSpacing: -0.3,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 12),
                     Text(
                       languageProvider.languageCode == 'ar'
                           ? 'فريقنا متاح للإجابة على جميع استفساراتك'
                           : 'Our team is available to answer all your inquiries',
                       style: TextStyle(
-                        fontSize: isMobile ? 14 : 16,
-                        color: Colors.grey[600],
+                        fontSize: isMobile ? 15 : 17,
+                        color: Color(0xFF6B7280),
+                        height: 1.6,
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Handle contact action
+                      },
+                      icon: Icon(Icons.chat_outlined, size: 20),
+                      label: Text(
+                        languageProvider.languageCode == 'ar'
+                            ? 'تواصل معنا'
+                            : 'Get in Touch',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0066CC),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -216,54 +243,54 @@ class ContactSection extends StatelessWidget {
     required IconData icon,
     required String title,
     required String content,
-    required Color color,
     required bool isMobile,
   }) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 25 : 30),
+      padding: EdgeInsets.all(isMobile ? 28 : 36),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
-            blurRadius: 5,
-            offset: Offset(0, 5),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 24,
+            offset: Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Color(0xFF0066CC).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
               size: 28,
-              color: color,
+              color: Color(0xFF0066CC),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 24),
           Text(
             title,
             style: TextStyle(
-              fontSize: isMobile ? 14 : 16,
+              fontSize: isMobile ? 13 : 14,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-              letterSpacing: 0.3,
+              color: Color(0xFF9CA3AF),
+              letterSpacing: 0.5,
+              textBaseline: TextBaseline.alphabetic,
             ),
           ),
           SizedBox(height: 10),
           SelectableText(
             content,
             style: TextStyle(
-              fontSize: isMobile ? 15 : 17,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF004080),
-              letterSpacing: 0.5,
+              fontSize: isMobile ? 16 : 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1A1A),
+              letterSpacing: -0.2,
             ),
             textAlign: TextAlign.center,
           ),
