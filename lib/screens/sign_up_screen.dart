@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import 'otp_verification_screen.dart';
 import 'address_selection_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -15,7 +13,11 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  String _phoneNumber = '';
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   String? _selectedAddress;
   double? _latitude;
   double? _longitude;
@@ -23,40 +25,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _proceedToOTP() async {
+  void _signUpWithEmail() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      bool userExists = await authProvider.checkUserExists(_phoneNumber);
-      if (userExists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('يوجد حساب مسجل بهذا الرقم. الرجاء تسجيل الدخول.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
-      }
-
-      authProvider.sendOTP(
-        phoneNumber: _phoneNumber,
-        onCodeSent: (verificationId) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OTPVerificationScreen(
-                phoneNumber: _phoneNumber,
-                isSignUp: true,
-                name: _nameController.text,
-                address: _selectedAddress,
-                latitude: _latitude,
-                longitude: _longitude,
-              ),
-            ),
-          );
+      authProvider.signUpWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+        address: _selectedAddress,
+        latitude: _latitude,
+        longitude: _longitude,
+        onSuccess: () {
+          Navigator.pushReplacementNamed(context, '/store');
         },
         onError: (error) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -65,6 +52,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
         },
       );
     }
+  }
+
+  void _signInWithGoogle() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    authProvider.signInWithGoogle(
+      onSuccess: () {
+        Navigator.pushReplacementNamed(context, '/store');
+      },
+      onError: (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
+        );
+      },
+    );
   }
 
   @override
@@ -98,14 +100,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF004080).withOpacity(0.1),
+                                  color: Color(0xFF0066CC).withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.person_add_outlined,
                                     size: 40,
-                                    color: Color(0xFF004080),
+                                    color: Color(0xFF0066CC),
                                   ),
                                 ),
                               ),
@@ -127,7 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 40),
+                          SizedBox(height: 32),
 
                           // Name Field
                           TextFormField(
@@ -136,7 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               labelText: 'الاسم الكامل',
                               prefixIcon: Icon(Icons.person_outline),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -151,30 +153,102 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
+                          SizedBox(height: 16),
 
-                          // Phone Field
-                          IntlPhoneField(
+                          // Email Field
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
-                              labelText: 'رقم الهاتف',
+                              labelText: 'البريد الإلكتروني',
+                              prefixIcon: Icon(Icons.email_outlined),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
                             ),
-                            initialCountryCode: 'IQ',
-                            onChanged: (phone) {
-                              _phoneNumber = phone.completeNumber;
-                            },
                             validator: (value) {
-                              if (value == null || value.number.isEmpty) {
-                                return 'الرجاء إدخال رقم الهاتف';
+                              if (value == null || value.isEmpty) {
+                                return 'الرجاء إدخال البريد الإلكتروني';
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                return 'البريد الإلكتروني غير صالح';
                               }
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
+                          SizedBox(height: 16),
+
+                          // Password Field
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: 'كلمة المرور',
+                              prefixIcon: Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'الرجاء إدخال كلمة المرور';
+                              }
+                              if (value.length < 6) {
+                                return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16),
+
+                          // Confirm Password Field
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _obscureConfirmPassword,
+                            decoration: InputDecoration(
+                              labelText: 'تأكيد كلمة المرور',
+                              prefixIcon: Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureConfirmPassword = !_obscureConfirmPassword;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'الرجاء تأكيد كلمة المرور';
+                              }
+                              if (value != _passwordController.text) {
+                                return 'كلمة المرور غير متطابقة';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 16),
 
                           // Address (Optional)
                           InkWell(
@@ -193,12 +267,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 });
                               }
                             },
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                             child: Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.grey[300]!),
                               ),
                               child: Row(
@@ -206,7 +280,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   Icon(
                                     Icons.location_on_outlined,
                                     color: _selectedAddress != null
-                                        ? Color(0xFF004080)
+                                        ? Color(0xFF0066CC)
                                         : Colors.grey,
                                   ),
                                   SizedBox(width: 12),
@@ -225,30 +299,85 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 32),
+                          SizedBox(height: 24),
 
                           // Sign Up Button
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: authProvider.isLoading ? null : _proceedToOTP,
+                              onPressed: authProvider.isLoading ? null : _signUpWithEmail,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF004080),
+                                backgroundColor: Color(0xFF0066CC),
+                                foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                                elevation: 0,
                               ),
                               child: authProvider.isLoading
                                   ? SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'إنشاء حساب',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+
+                          // Divider
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.grey[300])),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  'أو',
+                                  style: TextStyle(color: Colors.grey[500]),
+                                ),
+                              ),
+                              Expanded(child: Divider(color: Colors.grey[300])),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+
+                          // Google Sign In Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: OutlinedButton.icon(
+                              onPressed: authProvider.isLoading ? null : _signInWithGoogle,
+                              icon: Image.network(
+                                'https://www.google.com/favicon.ico',
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                                errorBuilder: (context, error, stackTrace) => Icon(
+                                  Icons.g_mobiledata,
+                                  size: 24,
+                                  color: Colors.red,
                                 ),
-                              )
-                                  : Text('متابعة', style: TextStyle(fontSize: 16)),
+                              ),
+                              label: Text(
+                                'التسجيل بواسطة Google',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                side: BorderSide(color: Colors.grey[300]!),
+                              ),
                             ),
                           ),
                           SizedBox(height: 24),
@@ -262,7 +391,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 onPressed: () {
                                   Navigator.pushReplacementNamed(context, '/sign-in');
                                 },
-                                child: Text('تسجيل الدخول'),
+                                child: Text(
+                                  'تسجيل الدخول',
+                                  style: TextStyle(
+                                    color: Color(0xFF0066CC),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -282,7 +417,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
-                      colors: [Color(0xFF004080), Color(0xFF0066CC)],
+                      colors: [Color(0xFF0066CC), Color(0xFF004080)],
                     ),
                   ),
                   child: Center(
