@@ -10,6 +10,7 @@ import 'dart:ui';
 import 'dart:async';
 import '../providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
+import '../language_provider.dart';
 import '../models/item.dart';
 import '../screens/cartPage_m.dart';
 import '../screens/categoryItemPage.dart';
@@ -402,9 +403,10 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     final isDesktop = screenWidth >= 1024;
     final isMobile = screenWidth < 768;
     final cartProvider = Provider.of<CartProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: LuxuryColors.cream,
         endDrawer: _buildLuxuryDrawer(),

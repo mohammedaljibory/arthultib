@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
+import '../language_provider.dart';
 import '../models/order_model.dart';
 import '../services/order_service.dart';
 
@@ -17,15 +18,16 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     if (!authProvider.isAuthenticated) {
-      return _buildLoginPrompt();
+      return _buildLoginPrompt(languageProvider);
     }
 
     final user = authProvider.currentUser!;
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Color(0xFFF5F5F5),
         body: Column(
@@ -150,9 +152,9 @@ class _AccountPageState extends State<AccountPage> {
       ),
     );
   }
-  Widget _buildLoginPrompt() {
+  Widget _buildLoginPrompt(LanguageProvider languageProvider) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Color(0xFFF5F5F5),
         body: Center(

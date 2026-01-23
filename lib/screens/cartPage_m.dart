@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../language_provider.dart';
 import '../models/user_model.dart';
 import '../services/order_service.dart';
 
@@ -16,6 +17,7 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final cartItems = cartProvider.cartItems;
     final total = cartProvider.totalAmount;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -23,7 +25,7 @@ class _CartPageState extends State<CartPage> {
     final isMobile = screenWidth < 768;
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(

@@ -16,8 +16,12 @@ class _HomeSectionState extends State<HomeSection> {
   int _currentPage = 0;
   Timer? _timer;
 
-  // Sample banner data - can be replaced with Firebase data
-  final List<Map<String, dynamic>> _banners = [
+  // Banners will be loaded from Firestore
+  List<Map<String, dynamic>> _banners = [];
+  bool _isLoadingBanners = true;
+
+  // Fallback banners if Firestore is empty
+  final List<Map<String, dynamic>> _fallbackBanners = [
     {
       'title_ar': 'أحدث الأجهزة الطبية',
       'title_en': 'Latest Medical Equipment',
@@ -25,6 +29,7 @@ class _HomeSectionState extends State<HomeSection> {
       'subtitle_en': 'Advanced technology for better healthcare',
       'image': 'assets/images/homeBG.png',
       'color': Color(0xFF0066CC),
+      'isLocal': true,
     },
     {
       'title_ar': 'شركاء النجاح',
@@ -33,6 +38,7 @@ class _HomeSectionState extends State<HomeSection> {
       'subtitle_en': 'Collaborating with the world\'s best companies',
       'image': 'assets/images/products.png',
       'color': Color(0xFF3B82F6),
+      'isLocal': true,
     },
     {
       'title_ar': 'جودة معتمدة',
@@ -41,13 +47,79 @@ class _HomeSectionState extends State<HomeSection> {
       'subtitle_en': 'Products with international quality certifications',
       'image': 'assets/images/homeBG.png',
       'color': Color(0xFF0066CC),
+      'isLocal': true,
     },
   ];
 
   @override
   void initState() {
     super.initState();
+    _loadBannersFromFirestore();
     _startAutoSlide();
+  }
+
+  Future<void> _loadBannersFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('banners')
+          .where('isActive', isEqualTo: true)
+          .orderBy('order')
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final now = DateTime.now();
+        setState(() {
+          _banners = snapshot.docs
+              .map((doc) {
+                final data = doc.data();
+                return {
+                  'id': doc.id,
+                  'title_ar': data['titleAr'] ?? '',
+                  'title_en': data['titleEn'] ?? data['titleAr'] ?? '',
+                  'subtitle_ar': data['subtitleAr'] ?? '',
+                  'subtitle_en': data['subtitleEn'] ?? data['subtitleAr'] ?? '',
+                  'imageUrl': data['imageUrl'],
+                  'actionType': data['actionType'] ?? 'none',
+                  'actionValue': data['actionValue'],
+                  'startDate': data['startDate']?.toDate(),
+                  'endDate': data['endDate']?.toDate(),
+                  'color': Color(0xFF0066CC),
+                  'isLocal': false,
+                };
+              })
+              .where((banner) {
+                // Filter by date range
+                final startDate = banner['startDate'] as DateTime?;
+                final endDate = banner['endDate'] as DateTime?;
+                if (startDate != null && now.isBefore(startDate)) return false;
+                if (endDate != null && now.isAfter(endDate)) return false;
+                return true;
+              })
+              .toList();
+          _isLoadingBanners = false;
+        });
+
+        // If no valid banners after filtering, use fallback
+        if (_banners.isEmpty) {
+          setState(() {
+            _banners = _fallbackBanners;
+          });
+        }
+      } else {
+        // No banners in Firestore, use fallback
+        setState(() {
+          _banners = _fallbackBanners;
+          _isLoadingBanners = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading home banners: $e');
+      // On error, use fallback banners
+      setState(() {
+        _banners = _fallbackBanners;
+        _isLoadingBanners = false;
+      });
+    }
   }
 
   @override
@@ -87,8 +159,29 @@ class _HomeSectionState extends State<HomeSection> {
             height: isMobile ? screenHeight * 0.65 : screenHeight * 0.8,
             child: Stack(
               children: [
+                // Loading state
+                if (_isLoadingBanners)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF0066CC).withOpacity(0.75),
+                          Color(0xFF0066CC).withOpacity(0.9),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
                 // Banner PageView
-                PageView.builder(
+                else
+                  PageView.builder(
                   controller: _pageController,
                   itemCount: _banners.length,
                   onPageChanged: (index) {
@@ -395,84 +488,120 @@ class _HomeSectionState extends State<HomeSection> {
     required bool isTablet,
     required LanguageProvider languageProvider,
   }) {
+    final bool isLocal = banner['isLocal'] == true;
+    final Color bannerColor = banner['color'] as Color? ?? Color(0xFF0066CC);
+
     return Container(
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(banner['image']),
-          fit: BoxFit.cover,
-        ),
+        color: bannerColor,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              banner['color'].withOpacity(0.75),
-              banner['color'].withOpacity(0.9),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 80),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  languageProvider.languageCode == 'ar'
-                      ? banner['title_ar']
-                      : banner['title_en'],
-                  style: TextStyle(
-                    fontSize: isMobile ? 36 : isTablet ? 48 : 64,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -1,
-                    height: 1.1,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24),
-                Text(
-                  languageProvider.languageCode == 'ar'
-                      ? banner['subtitle_ar']
-                      : banner['subtitle_en'],
-                  style: TextStyle(
-                    fontSize: isMobile ? 16 : 20,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withOpacity(0.9),
-                    letterSpacing: 0.3,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 40),
-                // CTA Button on Banner
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/store'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: banner['color'],
-                    padding: EdgeInsets.symmetric(horizontal: 36, vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    languageProvider.languageCode == 'ar'
-                        ? 'استكشف المنتجات'
-                        : 'Explore Products',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          if (isLocal)
+            Image.asset(
+              banner['image'],
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(color: bannerColor);
+              },
+            )
+          else
+            Image.network(
+              banner['imageUrl'] ?? '',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(color: bannerColor);
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  color: bannerColor,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white.withOpacity(0.5),
+                      strokeWidth: 2,
                     ),
                   ),
-                ),
-              ],
+                );
+              },
+            ),
+          // Gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  bannerColor.withOpacity(0.75),
+                  bannerColor.withOpacity(0.9),
+                ],
+              ),
             ),
           ),
-        ),
+          // Content
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 80),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    languageProvider.languageCode == 'ar'
+                        ? (banner['title_ar'] ?? '')
+                        : (banner['title_en'] ?? ''),
+                    style: TextStyle(
+                      fontSize: isMobile ? 36 : isTablet ? 48 : 64,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -1,
+                      height: 1.1,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                    languageProvider.languageCode == 'ar'
+                        ? (banner['subtitle_ar'] ?? '')
+                        : (banner['subtitle_en'] ?? ''),
+                    style: TextStyle(
+                      fontSize: isMobile ? 16 : 20,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white.withOpacity(0.9),
+                      letterSpacing: 0.3,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 40),
+                  // CTA Button on Banner
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/store'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: bannerColor,
+                      padding: EdgeInsets.symmetric(horizontal: 36, vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      languageProvider.languageCode == 'ar'
+                          ? 'استكشف المنتجات'
+                          : 'Explore Products',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
