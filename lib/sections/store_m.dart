@@ -1,4 +1,4 @@
-// ENHANCED MEDICAL STORE WITH COMPLETE FIREBASE STRUCTURE
+// LUXURY MEDICAL STORE - FORMAL ELEGANT DESIGN
 
 import 'dart:math';
 
@@ -12,6 +12,20 @@ import '../providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/item.dart';
 import '../screens/cartPage_m.dart';
+import '../screens/categoryItemPage.dart';
+
+// ============= LUXURY COLORS =============
+class LuxuryColors {
+  static const Color gold = Color(0xFFB8860B);
+  static const Color lightGold = Color(0xFFD4AF37);
+  static const Color champagne = Color(0xFFF7E7CE);
+  static const Color cream = Color(0xFFFAF9F6);
+  static const Color navy = Color(0xFF1B2838);
+  static const Color darkNavy = Color(0xFF0F1419);
+  static const Color charcoal = Color(0xFF2C3E50);
+  static const Color silver = Color(0xFFC0C0C0);
+  static const Color platinum = Color(0xFFE5E4E2);
+}
 
 // ============= DATA MODELS =============
 
@@ -161,7 +175,6 @@ class EnhancedItem extends Item {
   );
 
   factory EnhancedItem.fromFirestore(Map<String, dynamic> data, String docId) {
-    // Handle both old and new field names
     return EnhancedItem(
       id: docId,
       name: data['name'] ?? '',
@@ -170,11 +183,9 @@ class EnhancedItem extends Item {
       nameParts: List<String>.from(data['nameParts'] ?? []),
       categoryId: data['categoryId'] ?? 'uncategorized',
       categoryName: data['categoryName'],
-      // Handle both naming conventions for prices
       salePrice1: (data['SalePrice1'] ?? data['salePrice1'] ?? 0).toDouble(),
       salePrice2: (data['SalePrice2'] ?? data['salePrice2'] ?? 0).toDouble(),
       salePrice3: (data['SalePrice3'] ?? data['salePrice3'] ?? 0).toDouble(),
-      // Handle both naming conventions for number
       number: data['Number'] ?? data['number'] ?? 0,
       saleCurrencyId: data['SaleCurrencyId'] ?? data['saleCurrencyId'] ?? 1,
       thumbnail: data['thumbnail'],
@@ -202,6 +213,7 @@ class EnhancedItem extends Item {
     return salePrice1;
   }
 }
+
 // ============= MAIN STORE PAGE =============
 
 class MedicalStorePage extends StatefulWidget {
@@ -219,14 +231,12 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Data holders
   List<Banner> _banners = [];
   List<Category> _categories = [];
   List<EnhancedItem> _featuredProducts = [];
   List<EnhancedItem> _newArrivals = [];
   List<EnhancedItem> _bestSellers = [];
 
-  // Loading states
   bool _isLoadingBanners = true;
   bool _isLoadingCategories = true;
   bool _isLoadingProducts = true;
@@ -259,15 +269,15 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
   }
 
   void _startBannerTimer() {
-    _bannerTimer = Timer.periodic(Duration(seconds: 4), (timer) {
-      if (_bannerController.hasClients) {
+    _bannerTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      if (_bannerController.hasClients && _banners.isNotEmpty) {
         int nextPage = _bannerController.page!.round() + 1;
         if (nextPage >= _banners.length) {
           nextPage = 0;
         }
         _bannerController.animateToPage(
           nextPage,
-          duration: Duration(milliseconds: 400),
+          duration: Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
       }
@@ -290,8 +300,7 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
           if (banner.startDate != null && now.isBefore(banner.startDate!)) return false;
           if (banner.endDate != null && now.isAfter(banner.endDate!)) return false;
           return true;
-        })
-            .toList();
+        }).toList();
         _isLoadingBanners = false;
       });
     } catch (e) {
@@ -301,7 +310,6 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
   }
 
   Future<void> _loadCategories() async {
-   // print('Starting to load categories...'); // Debug
     try {
       final snapshot = await _firestore
           .collection('categories')
@@ -310,23 +318,14 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
           .limit(8)
           .get();
 
-      print('Query executed. Found ${snapshot.docs.length} documents'); // Debug
-
-      for (var doc in snapshot.docs) {
-        print('Doc ID: ${doc.id}, Data: ${doc.data()}'); // Debug
-      }
-
       setState(() {
         _categories = snapshot.docs
             .map((doc) => Category.fromFirestore(doc.data(), doc.id))
             .toList();
         _isLoadingCategories = false;
       });
-
-      print('Categories loaded: ${_categories.length}'); // Debug
     } catch (e) {
-      print('Error loading categories: $e'); // This will show the actual error
-      print('Error type: ${e.runtimeType}'); // Debug
+      print('Error loading categories: $e');
       setState(() => _isLoadingCategories = false);
     }
   }
@@ -344,15 +343,10 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
           .get();
 
       setState(() {
-
         _featuredProducts = snapshot.docs
             .map((doc) => EnhancedItem.fromFirestore(doc.data(), doc.id))
             .toList();
         _isLoadingProducts = false;
-        print( 'vvvvv' );
-        print( _featuredProducts );
-        print( 'vvvvv' );
-
       });
     } catch (e) {
       print('Error loading featured products: $e');
@@ -412,29 +406,31 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        endDrawer: _buildDrawer(),
+        backgroundColor: LuxuryColors.cream,
+        endDrawer: _buildLuxuryDrawer(),
         body: Stack(
           children: [
             RefreshIndicator(
               onRefresh: () async => _loadAllData(),
+              color: LuxuryColors.gold,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
-                  // Hero Section with Banners
+                  // Luxury Hero Section
                   SliverToBoxAdapter(
-                    child: _buildHeroWithBanners(isDesktop, isMobile),
+                    child: _buildLuxuryHero(isDesktop, isMobile),
                   ),
 
                   // Categories Section
                   SliverToBoxAdapter(
-                    child: _buildCategoriesSection(isDesktop, isMobile),
+                    child: _buildLuxuryCategoriesSection(isDesktop, isMobile),
                   ),
 
                   // Featured Products
                   SliverToBoxAdapter(
-                    child: _buildProductSection(
-                      title: 'منتجات مميزة',
+                    child: _buildLuxuryProductSection(
+                      title: 'مجموعة مميزة',
+                      subtitle: 'اختيارات فاخرة لعملائنا',
                       products: _featuredProducts,
                       isLoading: _isLoadingProducts,
                       isDesktop: isDesktop,
@@ -446,21 +442,23 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                   // New Arrivals
                   if (_newArrivals.isNotEmpty)
                     SliverToBoxAdapter(
-                      child: _buildProductSection(
+                      child: _buildLuxuryProductSection(
                         title: 'وصل حديثاً',
+                        subtitle: 'أحدث المنتجات الطبية',
                         products: _newArrivals,
                         isLoading: false,
                         isDesktop: isDesktop,
                         isMobile: isMobile,
-                        backgroundColor: Colors.blue.shade50,
+                        isDark: true,
                       ),
                     ),
 
                   // Best Sellers
                   if (_bestSellers.isNotEmpty)
                     SliverToBoxAdapter(
-                      child: _buildProductSection(
-                        title: 'الأكثر مبيعاً',
+                      child: _buildLuxuryProductSection(
+                        title: 'الأكثر طلباً',
+                        subtitle: 'المنتجات المفضلة لدى عملائنا',
                         products: _bestSellers,
                         isLoading: false,
                         isDesktop: isDesktop,
@@ -470,192 +468,251 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
 
                   // Services Section
                   SliverToBoxAdapter(
-                    child: _buildServicesSection(isDesktop, isMobile),
+                    child: _buildLuxuryServicesSection(isDesktop, isMobile),
                   ),
 
                   // Footer
                   SliverToBoxAdapter(
-                    child: _buildFooter(isDesktop, isMobile),
+                    child: _buildLuxuryFooter(isDesktop, isMobile),
                   ),
                 ],
               ),
             ),
 
-            // Navigation Bar
-            _buildNavBar(isDesktop, isMobile, cartProvider),
+            // Luxury Navigation Bar
+            _buildLuxuryNavBar(isDesktop, isMobile, cartProvider),
           ],
         ),
       ),
     );
   }
 
-  // HERO SECTION WITH BANNER CAROUSEL
-  Widget _buildHeroWithBanners(bool isDesktop, bool isMobile) {
+  // LUXURY HERO SECTION
+  Widget _buildLuxuryHero(bool isDesktop, bool isMobile) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * 0.75,
       child: Stack(
         children: [
-          // Banner Carousel
           if (_isLoadingBanners)
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [LuxuryColors.darkNavy, LuxuryColors.navy],
                 ),
               ),
               child: Center(
-                child: CircularProgressIndicator(color: Colors.white),
+                child: CircularProgressIndicator(
+                  color: LuxuryColors.gold,
+                  strokeWidth: 1,
+                ),
               ),
             )
           else if (_banners.isEmpty)
-          // Default hero if no banners
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'رعاية طبية متميزة',
-                      style: TextStyle(
-                        fontSize: isDesktop ? 56 : 36,
-                        fontWeight: FontWeight.w200,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'أفضل المستلزمات الطبية بجودة عالمية',
-                      style: TextStyle(
-                        fontSize: isDesktop ? 20 : 16,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
+            _buildDefaultLuxuryHero(isDesktop, isMobile)
           else
             PageView.builder(
               controller: _bannerController,
               itemCount: _banners.length,
               itemBuilder: (context, index) {
                 final banner = _banners[index];
-                return GestureDetector(
-                  onTap: () => _handleBannerTap(banner),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Banner Image
-                      Image.network(
-                        banner.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      // Gradient Overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.1),
-                              Colors.black.withOpacity(0.5),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Banner Text
-                      Positioned(
-                        bottom: isDesktop ? 100 : 60,
-                        left: isDesktop ? 60 : 20,
-                        right: isDesktop ? 60 : 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              banner.titleAr,
-                              style: TextStyle(
-                                fontSize: isDesktop ? 48 : 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                shadows: [
-                                  Shadow(
-                                    blurRadius: 10,
-                                    color: Colors.black.withOpacity(0.5),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (banner.subtitleAr != null) ...[
-                              SizedBox(height: 12),
-                              Text(
-                                banner.subtitleAr!,
-                                style: TextStyle(
-                                  fontSize: isDesktop ? 20 : 16,
-                                  color: Colors.white.withOpacity(0.9),
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 10,
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return _buildBannerSlide(banner, isDesktop, isMobile);
               },
             ),
 
           // Page Indicators
           if (_banners.length > 1)
             Positioned(
-              bottom: 30,
+              bottom: 40,
               left: 0,
               right: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _banners.asMap().entries.map((entry) {
-                  return Container(
-                    width: 8,
-                    height: 8,
+                  return AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    width: _bannerController.hasClients &&
+                        _bannerController.page?.round() == entry.key
+                        ? 30
+                        : 8,
+                    height: 3,
                     margin: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(
-                        _bannerController.hasClients &&
-                            _bannerController.page?.round() == entry.key
-                            ? 1.0
-                            : 0.4,
-                      ),
+                      color: _bannerController.hasClients &&
+                          _bannerController.page?.round() == entry.key
+                          ? LuxuryColors.gold
+                          : Colors.white.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   );
                 }).toList(),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultLuxuryHero(bool isDesktop, bool isMobile) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [LuxuryColors.darkNavy, LuxuryColors.navy, LuxuryColors.charcoal],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Subtle pattern overlay
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.03,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://www.transparenttextures.com/patterns/subtle-white-feathers.png',
+                    ),
+                    repeat: ImageRepeat.repeat,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Gold accent line
+          Positioned(
+            top: isDesktop ? 200 : 150,
+            left: isDesktop ? 60 : 20,
+            child: Container(
+              width: 80,
+              height: 2,
+              color: LuxuryColors.gold,
+            ),
+          ),
+          // Content
+          Positioned(
+            bottom: isDesktop ? 120 : 80,
+            left: isDesktop ? 60 : 20,
+            right: isDesktop ? 60 : 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'أرض الطب',
+                  style: TextStyle(
+                    fontSize: isDesktop ? 64 : 40,
+                    fontWeight: FontWeight.w200,
+                    color: Colors.white,
+                    letterSpacing: 6,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'التميز في المستلزمات الطبية',
+                  style: TextStyle(
+                    fontSize: isDesktop ? 22 : 16,
+                    color: LuxuryColors.gold,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 2,
+                  ),
+                ),
+                SizedBox(height: 40),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 40 : 30,
+                    vertical: isDesktop ? 18 : 14,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: LuxuryColors.gold, width: 1),
+                  ),
+                  child: Text(
+                    'استكشف المجموعة',
+                    style: TextStyle(
+                      fontSize: isDesktop ? 14 : 12,
+                      color: LuxuryColors.gold,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBannerSlide(Banner banner, bool isDesktop, bool isMobile) {
+    return GestureDetector(
+      onTap: () => _handleBannerTap(banner),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            banner.imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildDefaultLuxuryHero(isDesktop, isMobile);
+            },
+          ),
+          // Elegant gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.2),
+                  Colors.black.withOpacity(0.6),
+                ],
+              ),
+            ),
+          ),
+          // Gold accent line
+          Positioned(
+            bottom: isDesktop ? 160 : 120,
+            left: isDesktop ? 60 : 20,
+            child: Container(
+              width: 60,
+              height: 2,
+              color: LuxuryColors.gold,
+            ),
+          ),
+          // Banner text
+          Positioned(
+            bottom: isDesktop ? 80 : 60,
+            left: isDesktop ? 60 : 20,
+            right: isDesktop ? 60 : 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  banner.titleAr,
+                  style: TextStyle(
+                    fontSize: isDesktop ? 48 : 28,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
+                    letterSpacing: 2,
+                  ),
+                ),
+                if (banner.subtitleAr != null) ...[
+                  SizedBox(height: 12),
+                  Text(
+                    banner.subtitleAr!,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 18 : 14,
+                      color: LuxuryColors.gold,
+                      fontWeight: FontWeight.w300,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -676,60 +733,41 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
           );
         }
         break;
-      case 'product':
-      // Navigate to product details
-        break;
-      case 'url':
-      // Open URL
-        break;
       default:
         break;
     }
   }
 
-  // CATEGORIES SECTION
-  Widget _buildCategoriesSection(bool isDesktop, bool isMobile) {
+  // LUXURY CATEGORIES SECTION
+  Widget _buildLuxuryCategoriesSection(bool isDesktop, bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 60 : 20,
-        vertical: isDesktop ? 80 : 40,
+        horizontal: isDesktop ? 80 : 20,
+        vertical: isDesktop ? 100 : 60,
       ),
+      color: Colors.white,
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'الأقسام',
-                style: TextStyle(
-                  fontSize: isDesktop ? 36 : 28,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AllCategoriesPage(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'جميع الأقسام',
-                  style: TextStyle(
-                    fontSize: isDesktop ? 16 : 14,
-                    color: Color(0xFF0D47A1),
-                  ),
-                ),
-              ),
-            ],
+          // Section Header
+          _buildLuxurySectionHeader(
+            title: 'الأقسام',
+            subtitle: 'اختر من مجموعتنا المتنوعة',
+            onViewAll: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllCategoriesPage()),
+              );
+            },
           ),
-          SizedBox(height: isDesktop ? 60 : 30),
+          SizedBox(height: isDesktop ? 60 : 40),
 
           if (_isLoadingCategories)
-            Center(child: CircularProgressIndicator())
+            Center(
+              child: CircularProgressIndicator(
+                color: LuxuryColors.gold,
+                strokeWidth: 1,
+              ),
+            )
           else if (_categories.isEmpty)
             _buildEmptyState('لا توجد أقسام متاحة حالياً', Icons.category_outlined)
           else
@@ -738,14 +776,14 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: isDesktop ? 4 : 2,
-                childAspectRatio: isDesktop ? 1.3 : 1.1,
-                crossAxisSpacing: isDesktop ? 30 : 15,
-                mainAxisSpacing: isDesktop ? 30 : 15,
+                childAspectRatio: isDesktop ? 1.0 : 0.9,
+                crossAxisSpacing: isDesktop ? 30 : 16,
+                mainAxisSpacing: isDesktop ? 30 : 16,
               ),
               itemCount: _categories.length,
               itemBuilder: (context, index) {
                 final category = _categories[index];
-                return _buildEnhancedCategoryCard(category, isDesktop);
+                return _buildLuxuryCategoryCard(category, isDesktop);
               },
             ),
         ],
@@ -753,159 +791,166 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildEnhancedCategoryCard(Category category, bool isDesktop) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoryItemsPage(
-              categoryName: category.nameAr,
-              categoryId: category.id,
+  Widget _buildLuxuryCategoryCard(Category category, bool isDesktop) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryItemsPage(
+                categoryName: category.nameAr,
+                categoryId: category.id,
+              ),
             ),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: LuxuryColors.cream,
+            border: Border.all(color: Colors.grey.shade200),
           ),
-        );
-      },
-      borderRadius: BorderRadius.circular(15),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Colors.blue.shade50,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 15,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            if (category.imageUrl != null)
-              Positioned(
-                right: -20,
-                bottom: -20,
-                child: Opacity(
-                  opacity: 0.1,
-                  child: Image.network(
-                    category.imageUrl!,
-                    width: 100,
-                    height: 100,
-                    errorBuilder: (context, error, stackTrace) => Container(),
+          child: Stack(
+            children: [
+              // Background image if available
+              if (category.imageUrl != null)
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.08,
+                    child: Image.network(
+                      category.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(),
+                    ),
                   ),
                 ),
-              ),
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    category.icon ?? '🏥',
-                    style: TextStyle(fontSize: isDesktop ? 40 : 32),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    category.nameAr,
-                    style: TextStyle(
-                      fontSize: isDesktop ? 16 : 14,
-                      fontWeight: FontWeight.w500,
+              // Content
+              Padding(
+                padding: EdgeInsets.all(isDesktop ? 24 : 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icon container with gold border
+                    Container(
+                      width: isDesktop ? 70 : 56,
+                      height: isDesktop ? 70 : 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: LuxuryColors.gold.withOpacity(0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          category.icon ?? '🏥',
+                          style: TextStyle(fontSize: isDesktop ? 28 : 24),
+                        ),
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '${category.itemCount} منتج',
-                    style: TextStyle(
-                      fontSize: isDesktop ? 12 : 10,
-                      color: Colors.grey[600],
+                    SizedBox(height: isDesktop ? 20 : 14),
+                    Text(
+                      category.nameAr,
+                      style: TextStyle(
+                        fontSize: isDesktop ? 16 : 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                        color: LuxuryColors.navy,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    SizedBox(height: 8),
+                    Text(
+                      '${category.itemCount} منتج',
+                      style: TextStyle(
+                        fontSize: isDesktop ? 12 : 11,
+                        color: LuxuryColors.gold,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              // Hover line indicator
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 3,
+                  color: LuxuryColors.gold.withOpacity(0.3),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // PRODUCT SECTION BUILDER
-  Widget _buildProductSection({
+  // LUXURY PRODUCT SECTION
+  Widget _buildLuxuryProductSection({
     required String title,
+    required String subtitle,
     required List<EnhancedItem> products,
     required bool isLoading,
     required bool isDesktop,
     required bool isMobile,
     bool showAllLink = false,
-    Color? backgroundColor,
+    bool isDark = false,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 60 : 20,
-        vertical: isDesktop ? 60 : 30,
+        horizontal: isDesktop ? 80 : 20,
+        vertical: isDesktop ? 100 : 60,
       ),
-      color: backgroundColor ?? Colors.grey[50],
+      color: isDark ? LuxuryColors.navy : LuxuryColors.cream,
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: isDesktop ? 32 : 24,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              if (showAllLink)
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AllProductsPage(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'عرض الكل',
-                    style: TextStyle(
-                      fontSize: isDesktop ? 16 : 14,
-                      color: Color(0xFF0D47A1),
-                    ),
-                  ),
-                ),
-            ],
+          _buildLuxurySectionHeader(
+            title: title,
+            subtitle: subtitle,
+            isLight: isDark,
+            onViewAll: showAllLink
+                ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllProductsPage()),
+              );
+            }
+                : null,
           ),
-          SizedBox(height: isDesktop ? 40 : 20),
+          SizedBox(height: isDesktop ? 60 : 40),
 
           if (isLoading)
-            Center(child: CircularProgressIndicator())
+            Center(
+              child: CircularProgressIndicator(
+                color: LuxuryColors.gold,
+                strokeWidth: 1,
+              ),
+            )
           else if (products.isEmpty)
-            _buildEmptyState('لا توجد منتجات متاحة حالياً', Icons.shopping_bag_outlined)
+            _buildEmptyState(
+              'لا توجد منتجات متاحة',
+              Icons.shopping_bag_outlined,
+              isDark: isDark,
+            )
           else
             Container(
-              height: isDesktop ? 440 : 380,
+              height: isDesktop ? 480 : 400,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
                   return Container(
-                    width: isDesktop ? 280 : 200,
-                    margin: EdgeInsets.only(left: isDesktop ? 20 : 15),
-                    child: _buildEnhancedProductCard(product, isDesktop),
+                    width: isDesktop ? 320 : 220,
+                    margin: EdgeInsets.only(left: isDesktop ? 30 : 16),
+                    child: _buildLuxuryProductCard(product, isDesktop, isDark),
                   );
                 },
               ),
@@ -915,266 +960,303 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // ENHANCED PRODUCT CARD
-  Widget _buildEnhancedProductCard(EnhancedItem product, bool isDesktop) {
+  // LUXURY PRODUCT CARD
+  Widget _buildLuxuryProductCard(EnhancedItem product, bool isDesktop, bool isDark) {
     final hasDiscount = product.discount != null && product.discount! > 0;
 
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ItemDetailsPage(
-              item: product,
-              onAddToCart: (item, quantity) {
-                final cartProvider = Provider.of<CartProvider>(context, listen: false);
-                cartProvider.addToCart(item, quantity: quantity);
-              },
-            ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(15),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 15,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Container
-            Container(
-              height: isDesktop ? 240 : 180,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-                    child: product.thumbnail != null
-                        ? Image.network(
-                      product.thumbnail!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[100],
-                          child: Center(
-                            child: Icon(Icons.image_outlined,
-                                size: 50, color: Colors.grey),
-                          ),
-                        );
-                      },
-                    )
-                        : Container(
-                      color: Colors.grey[100],
-                      child: Center(
-                        child: Icon(Icons.image_outlined,
-                            size: 50, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-
-                  // Badges
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Column(
-                      children: [
-                        if (hasDiscount)
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${product.discount!.toInt()}%',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        if (product.isNewArrival) ...[
-                          SizedBox(height: 4),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'جديد',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                        if (!product.inStock) ...[
-                          SizedBox(height: 4),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'نفذ',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ItemDetailsPage(
+                item: product,
+                onAddToCart: (item, quantity) {
+                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                  cartProvider.addToCart(item, quantity: quantity);
+                },
               ),
             ),
-
-            // Product Info
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? LuxuryColors.charcoal : Colors.white,
+            border: Border.all(
+              color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade200,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image Container
+              Expanded(
+                flex: 3,
+                child: Stack(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (product.brand != null)
-                          Text(
-                            product.brand!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                    Container(
+                      width: double.infinity,
+                      color: isDark ? LuxuryColors.navy : LuxuryColors.cream,
+                      child: product.thumbnail != null
+                          ? Image.network(
+                        product.thumbnail!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Icon(
+                              Icons.medical_services_outlined,
+                              size: 40,
+                              color: LuxuryColors.silver,
                             ),
-                          ),
-                        SizedBox(height: 4),
-                        Text(
-                          product.nameAr ?? product.name,
-                          style: TextStyle(
-                            fontSize: isDesktop ? 16 : 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          );
+                        },
+                      )
+                          : Center(
+                        child: Icon(
+                          Icons.medical_services_outlined,
+                          size: 40,
+                          color: LuxuryColors.silver,
                         ),
-                      ],
+                      ),
                     ),
-                    Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (hasDiscount)
-                                  Text(
-                                    product.formattedPrice,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                Text(
-                                  '${product.currencySymbol} ${hasDiscount ? product.discountedPrice.toStringAsFixed(0) : product.salePrice1.toStringAsFixed(0)}',
-                                  style: TextStyle(
-                                    fontSize: isDesktop ? 18 : 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF0D47A1),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (product.inStock)
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'متوفر',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
 
-                        // Add to Cart Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: product.inStock
-                                ? () => _showQuantityDialog(product)
-                                : null,
-                            icon: Icon(Icons.shopping_cart_outlined, size: 18),
-                            label: Text('أضف للسلة'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: product.inStock
-                                  ? Color(0xFF0D47A1)
-                                  : Colors.grey,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                    // Badges
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (hasDiscount)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              color: LuxuryColors.gold,
+                              child: Text(
+                                '-${product.discount!.toInt()}%',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
+                          if (product.isNewArrival && !hasDiscount) ...[
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              color: LuxuryColors.navy,
+                              child: Text(
+                                'جديد',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // Product Info
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.all(isDesktop ? 20 : 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (product.brand != null)
+                            Text(
+                              product.brand!.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: LuxuryColors.gold,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          SizedBox(height: 6),
+                          Text(
+                            product.nameAr ?? product.name,
+                            style: TextStyle(
+                              fontSize: isDesktop ? 15 : 14,
+                              fontWeight: FontWeight.w400,
+                              color: isDark ? Colors.white : LuxuryColors.navy,
+                              height: 1.4,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (hasDiscount)
+                                    Text(
+                                      product.formattedPrice,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        decoration: TextDecoration.lineThrough,
+                                        color: isDark ? Colors.white38 : Colors.grey,
+                                      ),
+                                    ),
+                                  Text(
+                                    '${product.currencySymbol} ${hasDiscount ? product.discountedPrice.toStringAsFixed(0) : product.salePrice1.toStringAsFixed(0)}',
+                                    style: TextStyle(
+                                      fontSize: isDesktop ? 18 : 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (product.inStock)
+                                GestureDetector(
+                                  onTap: () => _showQuantityDialog(product),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState(String message, IconData icon) {
+  Widget _buildLuxurySectionHeader({
+    required String title,
+    required String subtitle,
+    bool isLight = false,
+    VoidCallback? onViewAll,
+  }) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 2,
+                  color: LuxuryColors.gold,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 2,
+                    color: isLight ? Colors.white : LuxuryColors.navy,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isLight ? Colors.white60 : Colors.grey[600],
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            if (onViewAll != null)
+              TextButton(
+                onPressed: onViewAll,
+                child: Row(
+                  children: [
+                    Text(
+                      'عرض الكل',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: LuxuryColors.gold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: LuxuryColors.gold,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState(String message, IconData icon, {bool isDark = false}) {
     return Center(
       child: Column(
         children: [
-          Icon(icon, size: 60, color: Colors.grey),
+          Icon(
+            icon,
+            size: 48,
+            color: isDark ? Colors.white24 : Colors.grey[300],
+          ),
           SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            style: TextStyle(
+              color: isDark ? Colors.white38 : Colors.grey[600],
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
           ),
         ],
       ),
     );
   }
-
-  // Rest of your existing methods (navbar, services, footer, drawer, quantity dialog, etc.)
-  // ... [Keep all your existing methods like _buildNavBar, _buildServicesSection, etc.]
 
   void _showQuantityDialog(EnhancedItem product) {
     int quantity = 1;
@@ -1190,70 +1272,112 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          backgroundColor: Colors.white,
           child: Container(
-            padding: EdgeInsets.all(24),
-            width: 350,
+            padding: EdgeInsets.all(32),
+            width: 380,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 40,
+                  height: 2,
+                  color: LuxuryColors.gold,
+                ),
+                SizedBox(height: 24),
                 Text(
                   'إضافة إلى السلة',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  product.nameAr ?? product.name,
-                  style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        if (quantity > 1) setState(() => quantity--);
-                      },
-                      icon: Icon(Icons.remove_circle_outline,
-                          color: Color(0xFF0D47A1)),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '$quantity',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        if (quantity < product.number) setState(() => quantity++);
-                      },
-                      icon: Icon(Icons.add_circle_outline,
-                          color: Color(0xFF0D47A1)),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'المجموع: ${(product.discountedPrice * quantity).toStringAsFixed(0)} ${product.currencySymbol}',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF0D47A1),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 1,
                   ),
                 ),
                 SizedBox(height: 24),
+                Text(
+                  product.nameAr ?? product.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (quantity > 1) setState(() => quantity--);
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Icon(Icons.remove, size: 18),
+                      ),
+                    ),
+                    Container(
+                      width: 80,
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Colors.grey.shade300),
+                          bottom: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      child: Text(
+                        '$quantity',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (quantity < product.number) setState(() => quantity++);
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Icon(Icons.add, size: 18),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+                Text(
+                  '${(product.discountedPrice * quantity).toStringAsFixed(0)} ${product.currencySymbol}',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: LuxuryColors.navy,
+                  ),
+                ),
+                SizedBox(height: 32),
                 Row(
                   children: [
                     Expanded(
                       child: TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text('إلغاء'),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Text(
+                          'إلغاء',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(width: 16),
@@ -1265,16 +1389,18 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('تمت الإضافة إلى السلة'),
-                              backgroundColor: Colors.green,
+                              backgroundColor: LuxuryColors.navy,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
                               action: SnackBarAction(
                                 label: 'عرض السلة',
-                                textColor: Colors.white,
+                                textColor: LuxuryColors.gold,
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CartPage(),
-                                    ),
+                                    MaterialPageRoute(builder: (_) => CartPage()),
                                   );
                                 },
                               ),
@@ -1282,12 +1408,18 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF0D47A1),
+                          backgroundColor: LuxuryColors.navy,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.zero,
                           ),
+                          elevation: 0,
                         ),
-                        child: Text('إضافة'),
+                        child: Text(
+                          'إضافة',
+                          style: TextStyle(letterSpacing: 1),
+                        ),
                       ),
                     ),
                   ],
@@ -1303,58 +1435,86 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
   void _showAuthDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text('تسجيل الدخول مطلوب'),
-        content: Text('يجب عليك تسجيل الدخول أولاً'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        child: Container(
+          padding: EdgeInsets.all(40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 2,
+                color: LuxuryColors.gold,
+              ),
+              SizedBox(height: 24),
+              Text(
+                'تسجيل الدخول مطلوب',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w300,
+                  letterSpacing: 1,
+                ),
+              ),
+              SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/sign-in');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: LuxuryColors.navy,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'تسجيل الدخول',
+                    style: TextStyle(letterSpacing: 1),
+                  ),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/sign-in');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF0D47A1),
-            ),
-            child: Text('تسجيل الدخول'),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // Keep your existing navbar, drawer, services, footer methods here
-  Widget _buildNavBar(bool isDesktop, bool isMobile, CartProvider cartProvider) {
-    // Your existing navbar code
+  // LUXURY NAVIGATION BAR
+  Widget _buildLuxuryNavBar(bool isDesktop, bool isMobile, CartProvider cartProvider) {
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
-        height: isDesktop ? 80 : 70,
+        height: isDesktop ? 90 : 75,
         decoration: BoxDecoration(
           color: _isScrolled
               ? Colors.white.withOpacity(0.98)
               : Colors.transparent,
-          boxShadow: _isScrolled
-              ? [BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          )]
-              : [],
+          border: Border(
+            bottom: BorderSide(
+              color: _isScrolled ? LuxuryColors.platinum : Colors.transparent,
+              width: 1,
+            ),
+          ),
         ),
         child: ClipRRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(
+              sigmaX: _isScrolled ? 10 : 0,
+              sigmaY: _isScrolled ? 10 : 0,
+            ),
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 60 : 20,
+                horizontal: isDesktop ? 80 : 20,
                 vertical: 20,
               ),
               child: Row(
@@ -1363,41 +1523,67 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                   if (isMobile)
                     Builder(
                       builder: (context) => IconButton(
-                        icon: Icon(Icons.menu,
-                            color: _isScrolled ? Colors.black87 : Colors.white),
+                        icon: Icon(
+                          Icons.menu,
+                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
+                        ),
                         onPressed: () => Scaffold.of(context).openEndDrawer(),
                       ),
                     ),
+                  // Logo
                   Text(
                     'أرض الطب',
                     style: TextStyle(
-                      fontSize: isDesktop ? 24 : 20,
+                      fontSize: isDesktop ? 26 : 20,
                       fontWeight: FontWeight.w300,
-                      letterSpacing: 0.5,
-                      color: _isScrolled ? Colors.black87 : Colors.white,
+                      letterSpacing: 4,
+                      color: _isScrolled ? LuxuryColors.navy : Colors.white,
                     ),
                   ),
+                  // Actions
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.search,
-                            color: _isScrolled ? Colors.black54 : Colors.white),
+                        icon: Icon(
+                          Icons.search,
+                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
+                          size: 22,
+                        ),
                         onPressed: () => Navigator.pushNamed(context, '/search'),
                       ),
+                      SizedBox(width: 4),
                       IconButton(
-                        icon: Icon(Icons.person_outline,
-                            color: _isScrolled ? Colors.black54 : Colors.white),
+                        icon: Icon(
+                          Icons.person_outline,
+                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
+                          size: 22,
+                        ),
                         onPressed: () => Navigator.pushNamed(context, '/account'),
                       ),
-                      SizedBox(width: 8),
+                      SizedBox(width: 4),
                       Stack(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.shopping_bag_outlined,
-                                color: _isScrolled ? Colors.black54 : Colors.white),
+                            icon: Icon(
+                              Icons.shopping_bag_outlined,
+                              color: _isScrolled ? LuxuryColors.navy : Colors.white,
+                              size: 22,
+                            ),
                             onPressed: () => Navigator.pushNamed(context, '/cart'),
                           ),
-                          // ... cart badge
+                          if (cartProvider.itemCount > 0)
+                            Positioned(
+                              right: 6,
+                              top: 6,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: LuxuryColors.gold,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ],
@@ -1411,176 +1597,250 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildServicesSection(bool isDesktop, bool isMobile) {
+  // LUXURY SERVICES SECTION
+  Widget _buildLuxuryServicesSection(bool isDesktop, bool isMobile) {
     final services = [
-      {'icon': Icons.local_shipping_outlined, 'title': 'توصيل سريع', 'subtitle': 'خلال 24 ساعة'},
-      {'icon': Icons.verified_outlined, 'title': 'منتجات أصلية', 'subtitle': 'ضمان 100%'},
-      {'icon': Icons.support_agent_outlined, 'title': 'دعم متواصل', 'subtitle': '24/7'},
-      {'icon': Icons.card_giftcard_outlined, 'title': 'عروض حصرية', 'subtitle': 'خصومات مميزة'},
+      {
+        'icon': Icons.local_shipping_outlined,
+        'title': 'توصيل فاخر',
+        'subtitle': 'خدمة توصيل سريعة ومميزة'
+      },
+      {
+        'icon': Icons.verified_outlined,
+        'title': 'جودة مضمونة',
+        'subtitle': 'منتجات أصلية 100%'
+      },
+      {
+        'icon': Icons.support_agent_outlined,
+        'title': 'دعم متميز',
+        'subtitle': 'خدمة عملاء على مدار الساعة'
+      },
+      {
+        'icon': Icons.card_giftcard_outlined,
+        'title': 'عروض حصرية',
+        'subtitle': 'خصومات خاصة لعملائنا'
+      },
     ];
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 60 : 20,
-        vertical: isDesktop ? 80 : 40,
+        horizontal: isDesktop ? 80 : 20,
+        vertical: isDesktop ? 100 : 60,
       ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isDesktop ? 4 : 2,
-          childAspectRatio: 1.5,
-          crossAxisSpacing: isDesktop ? 30 : 15,
-          mainAxisSpacing: isDesktop ? 30 : 15,
-        ),
-        itemCount: services.length,
-        itemBuilder: (context, index) {
-          final service = services[index];
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Color(0xFF0D47A1).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  service['icon'] as IconData,
-                  size: isDesktop ? 32 : 24,
-                  color: Color(0xFF0D47A1),
-                ),
-              ),
-              SizedBox(height: 12),
-              Text(
-                service['title'] as String,
-                style: TextStyle(
-                  fontSize: isDesktop ? 16 : 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                service['subtitle'] as String,
-                style: TextStyle(
-                  fontSize: isDesktop ? 14 : 12,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFooter(bool isDesktop, bool isMobile) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 60 : 20,
-        vertical: isDesktop ? 60 : 30,
-      ),
-      color: Color(0xFF0D47A1),
+      color: Colors.white,
       child: Column(
         children: [
+          Container(
+            width: 40,
+            height: 2,
+            color: LuxuryColors.gold,
+          ),
+          SizedBox(height: 16),
           Text(
-            'أرض الطب',
+            'لماذا نحن',
             style: TextStyle(
-              fontSize: isDesktop ? 32 : 24,
+              fontSize: 28,
               fontWeight: FontWeight.w300,
-              color: Colors.white,
-              letterSpacing: 0.5,
+              letterSpacing: 2,
+              color: LuxuryColors.navy,
             ),
           ),
-          SizedBox(height: 20),
-          Text(
-            'info@arthultib.com | +964 780 017 5770',
-            style: TextStyle(
-              fontSize: isDesktop ? 16 : 14,
-              color: Colors.white70,
+          SizedBox(height: isDesktop ? 60 : 40),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isDesktop ? 4 : 2,
+              childAspectRatio: isDesktop ? 1.2 : 1.0,
+              crossAxisSpacing: isDesktop ? 40 : 20,
+              mainAxisSpacing: isDesktop ? 40 : 20,
             ),
+            itemCount: services.length,
+            itemBuilder: (context, index) {
+              final service = services[index];
+              return Container(
+                padding: EdgeInsets.all(isDesktop ? 30 : 20),
+                decoration: BoxDecoration(
+                  color: LuxuryColors.cream,
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: isDesktop ? 60 : 48,
+                      height: isDesktop ? 60 : 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: LuxuryColors.gold.withOpacity(0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        service['icon'] as IconData,
+                        size: isDesktop ? 26 : 22,
+                        color: LuxuryColors.gold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      service['title'] as String,
+                      style: TextStyle(
+                        fontSize: isDesktop ? 16 : 14,
+                        fontWeight: FontWeight.w500,
+                        color: LuxuryColors.navy,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      service['subtitle'] as String,
+                      style: TextStyle(
+                        fontSize: isDesktop ? 13 : 11,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w300,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          SizedBox(height: 30),
-          Text(
-            '© 2024 جميع الحقوق محفوظة',
-            style: TextStyle(
-              fontSize: isDesktop ? 14 : 12,
-              color: Colors.white60,
-            ),
-          ),
-
         ],
       ),
     );
   }
 
-  Widget _buildDrawer() {
+  // LUXURY FOOTER
+  Widget _buildLuxuryFooter(bool isDesktop, bool isMobile) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 80 : 20,
+        vertical: isDesktop ? 80 : 50,
+      ),
+      color: LuxuryColors.darkNavy,
+      child: Column(
+        children: [
+          // Logo
+          Text(
+            'أرض الطب',
+            style: TextStyle(
+              fontSize: isDesktop ? 36 : 28,
+              fontWeight: FontWeight.w200,
+              color: Colors.white,
+              letterSpacing: 6,
+            ),
+          ),
+          SizedBox(height: 16),
+          Container(
+            width: 60,
+            height: 1,
+            color: LuxuryColors.gold,
+          ),
+          SizedBox(height: 30),
+          Text(
+            'التميز في المستلزمات الطبية',
+            style: TextStyle(
+              fontSize: isDesktop ? 16 : 14,
+              color: LuxuryColors.gold,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 1,
+            ),
+          ),
+          SizedBox(height: 40),
+          // Contact Info
+          Text(
+            'info@arthultib.com | +964 780 017 5770',
+            style: TextStyle(
+              fontSize: isDesktop ? 14 : 12,
+              color: Colors.white60,
+              letterSpacing: 0.5,
+            ),
+          ),
+          SizedBox(height: 40),
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.white.withOpacity(0.1),
+          ),
+          SizedBox(height: 30),
+          Text(
+            '© 2024 أرض الطب - جميع الحقوق محفوظة',
+            style: TextStyle(
+              fontSize: isDesktop ? 12 : 11,
+              color: Colors.white38,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // LUXURY DRAWER
+  Widget _buildLuxuryDrawer() {
     return Drawer(
-
       child: Container(
-
         color: Colors.white,
         child: SafeArea(
           child: Column(
             children: [
-
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'أرض الطب',
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 0.5,
+              // Header
+              Container(
+                padding: EdgeInsets.all(40),
+                color: LuxuryColors.navy,
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Text(
+                      'أرض الطب',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w200,
+                        letterSpacing: 4,
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 12),
+                    Container(
+                      width: 40,
+                      height: 1,
+                      color: LuxuryColors.gold,
+                    ),
+                  ],
                 ),
               ),
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.symmetric(vertical: 20),
                   children: [
-                    ListTile(
-                      leading: Icon(Icons.home_outlined, color: Color(0xFF0D47A1)),
-                      title: Text('الرئيسية'),
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.category_outlined, color: Color(0xFF0D47A1)),
-                      title: Text('الأقسام'),
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.shopping_bag_outlined, color: Color(0xFF0D47A1)),
-                      title: Text('السلة'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => CartPage()));
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.person_outline, color: Color(0xFF0D47A1)),
-                      title: Text('حسابي'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/account');
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.favorite_outline, color: Color(0xFF0D47A1)),
-                      title: Text('المفضلة'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/saved-items');
-                      },
-                    ),
+                    _buildDrawerItem(Icons.home_outlined, 'الرئيسية', () {
+                      Navigator.pop(context);
+                    }),
+                    _buildDrawerItem(Icons.category_outlined, 'الأقسام', () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => AllCategoriesPage()),
+                      );
+                    }),
+                    _buildDrawerItem(Icons.shopping_bag_outlined, 'السلة', () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => CartPage()),
+                      );
+                    }),
+                    _buildDrawerItem(Icons.person_outline, 'حسابي', () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/account');
+                    }),
+                    _buildDrawerItem(Icons.favorite_outline, 'المفضلة', () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/saved-items');
+                    }),
                   ],
                 ),
               ),
@@ -1588,6 +1848,22 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: LuxuryColors.navy, size: 22),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
+        ),
+      ),
+      onTap: onTap,
+      contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 4),
     );
   }
 
@@ -1601,27 +1877,17 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
   }
 }
 
-// Placeholder Pages - Replace with your actual implementations
-class CategoryItemsPage extends StatelessWidget {
-  final String categoryName;
-  final String categoryId;
-
-  CategoryItemsPage({required this.categoryName, required this.categoryId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(categoryName)),
-      body: Center(child: Text('Category: $categoryName')),
-    );
-  }
-}
-
+// Placeholder Pages
 class AllCategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('جميع الأقسام')),
+      appBar: AppBar(
+        title: Text('جميع الأقسام'),
+        backgroundColor: LuxuryColors.navy,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: Center(child: Text('All Categories')),
     );
   }
@@ -1631,7 +1897,12 @@ class AllProductsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('جميع المنتجات')),
+      appBar: AppBar(
+        title: Text('جميع المنتجات'),
+        backgroundColor: LuxuryColors.navy,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: Center(child: Text('All Products')),
     );
   }
@@ -1651,50 +1922,35 @@ class ProductDetailsPage extends StatelessWidget {
   }
 }
 
-
-
 class ItemAdapter {
   static Map<String, dynamic> fromStockToEnhanced(Map<String, dynamic> stockItem) {
-    // Convert your existing stock item to enhanced format
     return {
       'name': stockItem['name'],
-      'nameAr': stockItem['name'], // Using name as nameAr for now
-      'nameEn': null, // Can be added later
+      'nameAr': stockItem['name'],
+      'nameEn': null,
       'nameParts': stockItem['nameParts'] ?? [],
       'namePartsLower': stockItem['namePartsLower'] ?? [],
-
-      // Prices
       'SalePrice1': stockItem['SalePrice1'] ?? 0,
       'SalePrice2': stockItem['SalePrice2'] ?? 0,
       'SalePrice3': stockItem['SalePrice3'] ?? 0,
       'SalePricePrivate': stockItem['SalePricePrivate'] ?? 0,
       'SalePriceWhole': stockItem['SalePriceWhole'] ?? 0,
-
-      // Stock info
       'Number': stockItem['Number'] ?? 0,
       'SaleCurrencyId': stockItem['SaleCurrencyId'] ?? 1,
       'BarcodeText': stockItem['BarcodeText'] ?? '',
-
-      // Enhanced fields (defaults)
       'categoryId': stockItem['categoryId'] ?? 'uncategorized',
       'categoryName': stockItem['categoryName'] ?? 'غير مصنف',
       'thumbnail': stockItem['thumbnail'],
       'images': stockItem['images'] ?? [],
-
-      // Feature flags
       'isFeatured': stockItem['isFeatured'] ?? false,
       'featuredOrder': stockItem['featuredOrder'] ?? 999,
       'isNewArrival': stockItem['isNewArrival'] ?? false,
       'isBestSeller': stockItem['isBestSeller'] ?? false,
-
-      // Additional info
       'discount': stockItem['discount'] ?? 0,
       'description': stockItem['description'] ?? '',
       'brand': stockItem['brand'] ?? '',
       'tags': stockItem['tags'] ?? [],
       'isActive': stockItem['isActive'] ?? true,
-
-      // Timestamps
       'lastUpdated': stockItem['lastUpdated'] ?? FieldValue.serverTimestamp(),
       'lastSoldAt': stockItem['lastSoldAt'],
       'createdAt': stockItem['createdAt'] ?? FieldValue.serverTimestamp(),
@@ -1704,13 +1960,11 @@ class ItemAdapter {
   static Map<String, dynamic> updateFromStock(
       Map<String, dynamic> enhancedItem,
       Map<String, dynamic> stockUpdate) {
-    // Update only stock-related fields from your inventory system
     enhancedItem['Number'] = stockUpdate['Number'] ?? enhancedItem['Number'];
     enhancedItem['SalePrice1'] = stockUpdate['SalePrice1'] ?? enhancedItem['SalePrice1'];
     enhancedItem['SalePrice2'] = stockUpdate['SalePrice2'] ?? enhancedItem['SalePrice2'];
     enhancedItem['SalePrice3'] = stockUpdate['SalePrice3'] ?? enhancedItem['SalePrice3'];
     enhancedItem['lastUpdated'] = FieldValue.serverTimestamp();
-
     return enhancedItem;
   }
 }

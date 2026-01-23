@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../models/item.dart';
-import '../models/cart_item.dart' as models;
 import '../providers/auth_provider.dart';
 import '../sections/product_details.dart';
 import 'cartPage_m.dart';
 import '../providers/cart_provider.dart';
 import 'dart:ui';
+
+// Import luxury colors
+class LuxuryColors {
+  static const Color gold = Color(0xFFB8860B);
+  static const Color lightGold = Color(0xFFD4AF37);
+  static const Color champagne = Color(0xFFF7E7CE);
+  static const Color cream = Color(0xFFFAF9F6);
+  static const Color navy = Color(0xFF1B2838);
+  static const Color darkNavy = Color(0xFF0F1419);
+  static const Color charcoal = Color(0xFF2C3E50);
+  static const Color silver = Color(0xFFC0C0C0);
+  static const Color platinum = Color(0xFFE5E4E2);
+}
 
 class CategoryItemsPage extends StatefulWidget {
   final String categoryName;
@@ -29,17 +41,13 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  // Pagination
   static const int _itemsPerPage = 12;
   List<DocumentSnapshot> _items = [];
   bool _isLoading = false;
   bool _hasMore = true;
   DocumentSnapshot? _lastDocument;
 
-  // Filter & Sort
   String _selectedSort = 'featured';
-  RangeValues _priceRange = RangeValues(0, 10000);
-  bool _showFilters = false;
   bool _isScrolled = false;
 
   @override
@@ -59,7 +67,6 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
   }
 
   void _scrollListener() {
-    // Load more items
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading && _hasMore) {
@@ -67,7 +74,6 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
       }
     }
 
-    // Update navbar style
     setState(() {
       _isScrolled = _scrollController.offset > 50;
     });
@@ -155,30 +161,29 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: LuxuryColors.cream,
         body: Stack(
           children: [
-            // Main Content
             CustomScrollView(
               controller: _scrollController,
               slivers: [
-                // Minimal Header
+                // Luxury Header
                 SliverToBoxAdapter(
-                  child: _buildMinimalHeader(isDesktop, isMobile),
+                  child: _buildLuxuryHeader(isDesktop, isMobile),
                 ),
 
                 // Filter Bar
                 SliverToBoxAdapter(
-                  child: _buildFilterBar(isDesktop, isMobile),
+                  child: _buildLuxuryFilterBar(isDesktop, isMobile),
                 ),
 
                 // Products Grid
                 SliverPadding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 60 : 20,
-                    vertical: 40,
+                    horizontal: isDesktop ? 80 : 20,
+                    vertical: isDesktop ? 60 : 40,
                   ),
-                  sliver: _buildProductsGrid(isDesktop, isMobile),
+                  sliver: _buildLuxuryProductsGrid(isDesktop, isMobile),
                 ),
 
                 // Loading Indicator
@@ -189,11 +194,16 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
                         padding: EdgeInsets.all(40),
                         child: CircularProgressIndicator(
                           strokeWidth: 1,
-                          color: Colors.black87,
+                          color: LuxuryColors.gold,
                         ),
                       ),
                     ),
                   ),
+
+                // Bottom Spacing
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 60),
+                ),
               ],
             ),
 
@@ -213,68 +223,90 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
       right: 0,
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
-        height: isDesktop ? 80 : 70,
+        height: isDesktop ? 90 : 75,
         decoration: BoxDecoration(
           color: _isScrolled
               ? Colors.white.withOpacity(0.98)
-              : Colors.white.withOpacity(0.95),
+              : Colors.white,
           border: Border(
             bottom: BorderSide(
-              color: _isScrolled ? Colors.grey[200]! : Colors.transparent,
+              color: LuxuryColors.platinum,
               width: 1,
             ),
           ),
         ),
         child: ClipRRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(
+              sigmaX: _isScrolled ? 10 : 0,
+              sigmaY: _isScrolled ? 10 : 0,
+            ),
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 60 : 20,
+                horizontal: isDesktop ? 80 : 20,
                 vertical: 20,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Back Button
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios, size: 20),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: LuxuryColors.platinum),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 16,
+                        color: LuxuryColors.navy,
+                      ),
+                    ),
                   ),
 
-                  // Title
+                  // Logo
                   Text(
                     'أرض الطب',
                     style: TextStyle(
                       fontSize: isDesktop ? 24 : 18,
                       fontWeight: FontWeight.w300,
-                      letterSpacing: 2,
+                      letterSpacing: 4,
+                      color: LuxuryColors.navy,
                     ),
                   ),
 
                   // Cart
                   Stack(
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.shopping_bag_outlined, size: 20),
-                        onPressed: () => Navigator.push(
+                      GestureDetector(
+                        onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => CartPage()),
                         ),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: LuxuryColors.platinum),
+                          ),
+                          child: Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 18,
+                            color: LuxuryColors.navy,
+                          ),
+                        ),
                       ),
                       if (cartProvider.itemCount > 0)
                         Positioned(
                           right: 0,
                           top: 0,
                           child: Container(
-                            width: 6,
-                            height: 6,
+                            width: 8,
+                            height: 8,
                             decoration: BoxDecoration(
-                              color: Colors.black87,
+                              color: LuxuryColors.gold,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -290,38 +322,44 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
     );
   }
 
-  // MINIMAL HEADER
-  Widget _buildMinimalHeader(bool isDesktop, bool isMobile) {
+  // LUXURY HEADER
+  Widget _buildLuxuryHeader(bool isDesktop, bool isMobile) {
     return Container(
       padding: EdgeInsets.only(
-        top: isDesktop ? 140 : 110,
-        bottom: isDesktop ? 60 : 40,
+        top: isDesktop ? 160 : 130,
+        bottom: isDesktop ? 80 : 50,
+        left: isDesktop ? 80 : 20,
+        right: isDesktop ? 80 : 20,
       ),
+      color: Colors.white,
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Column(
           children: [
+            Container(
+              width: 40,
+              height: 2,
+              color: LuxuryColors.gold,
+            ),
+            SizedBox(height: 24),
             Text(
               widget.categoryName,
               style: TextStyle(
                 fontSize: isDesktop ? 48 : 32,
                 fontWeight: FontWeight.w200,
                 letterSpacing: 4,
+                color: LuxuryColors.navy,
               ),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
-            Container(
-              width: 60,
-              height: 1,
-              color: Colors.black12,
-            ),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
             Text(
-              '${_items.length} منتج',
+              '${_items.length} منتج متاح',
               style: TextStyle(
-                fontSize: isDesktop ? 16 : 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w300,
+                fontSize: isDesktop ? 15 : 13,
+                color: LuxuryColors.gold,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1,
               ),
             ),
           ],
@@ -330,55 +368,65 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
     );
   }
 
-  // FILTER BAR
-  Widget _buildFilterBar(bool isDesktop, bool isMobile) {
+  // LUXURY FILTER BAR
+  Widget _buildLuxuryFilterBar(bool isDesktop, bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 60 : 20,
+        horizontal: isDesktop ? 80 : 20,
         vertical: 20,
       ),
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
-          bottom: BorderSide(color: Colors.grey[200]!),
+          top: BorderSide(color: LuxuryColors.platinum),
+          bottom: BorderSide(color: LuxuryColors.platinum),
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Filter Button
-          TextButton.icon(
-            onPressed: () => setState(() => _showFilters = !_showFilters),
-            icon: Icon(
-              Icons.tune,
-              size: 18,
-              color: Colors.black87,
-            ),
-            label: Text(
-              'تصفية',
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: isDesktop ? 15 : 14,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1,
-              ),
+          GestureDetector(
+            onTap: () {
+              // Show filter dialog
+            },
+            child: Row(
+              children: [
+                Icon(
+                  Icons.tune,
+                  size: 18,
+                  color: LuxuryColors.navy,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'تصفية',
+                  style: TextStyle(
+                    color: LuxuryColors.navy,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
             ),
           ),
 
           // Sort Dropdown
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
+              border: Border.all(color: LuxuryColors.platinum),
             ),
             child: DropdownButton<String>(
               value: _selectedSort,
               underline: SizedBox(),
-              icon: Icon(Icons.arrow_drop_down, size: 20),
+              icon: Icon(Icons.keyboard_arrow_down, size: 18, color: LuxuryColors.navy),
+              isDense: true,
               style: TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
+                color: LuxuryColors.navy,
+                fontSize: 13,
                 fontWeight: FontWeight.w400,
+                letterSpacing: 0.5,
               ),
               items: [
                 DropdownMenuItem(value: 'featured', child: Text('المميز')),
@@ -394,8 +442,8 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
     );
   }
 
-  // PRODUCTS GRID
-  Widget _buildProductsGrid(bool isDesktop, bool isMobile) {
+  // LUXURY PRODUCTS GRID
+  Widget _buildLuxuryProductsGrid(bool isDesktop, bool isMobile) {
     final filteredItems = _items
         .map((doc) => Item.fromFirestore(
         doc.data() as Map<String, dynamic>, doc.id))
@@ -406,20 +454,38 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
       return SliverToBoxAdapter(
         child: Center(
           child: Container(
-            padding: EdgeInsets.all(60),
+            padding: EdgeInsets.all(80),
             child: Column(
               children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 48,
-                  color: Colors.grey[300],
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: LuxuryColors.platinum),
+                  ),
+                  child: Icon(
+                    Icons.inventory_2_outlined,
+                    size: 32,
+                    color: LuxuryColors.silver,
+                  ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 24),
                 Text(
                   'لا توجد منتجات',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Colors.grey[600],
+                    color: LuxuryColors.navy,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 1,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'يرجى التحقق من أقسام أخرى',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
                     fontWeight: FontWeight.w300,
                   ),
                 ),
@@ -433,9 +499,9 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isDesktop ? 4 : 2,
-        childAspectRatio: isDesktop ? 0.65 : 0.6,
-        crossAxisSpacing: isDesktop ? 30 : 15,
-        mainAxisSpacing: isDesktop ? 50 : 25,
+        childAspectRatio: isDesktop ? 0.65 : 0.58,
+        crossAxisSpacing: isDesktop ? 30 : 16,
+        mainAxisSpacing: isDesktop ? 50 : 30,
       ),
       delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -454,17 +520,21 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
       child: GestureDetector(
         onTap: () => _navigateToItemDetails(item),
         child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: LuxuryColors.platinum),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Container
               Expanded(
+                flex: 3,
                 child: Stack(
                   children: [
                     Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                      ),
+                      width: double.infinity,
+                      color: LuxuryColors.cream,
                       child: item.thumbnail != null
                           ? Image.network(
                         item.thumbnail!,
@@ -476,7 +546,7 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
                             child: Icon(
                               Icons.medical_services_outlined,
                               size: 32,
-                              color: Colors.grey[300],
+                              color: LuxuryColors.silver,
                             ),
                           );
                         },
@@ -485,60 +555,29 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
                         child: Icon(
                           Icons.medical_services_outlined,
                           size: 32,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-
-                    // Hover Overlay
-                    Positioned.fill(
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0),
-                        ),
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 200),
-                            opacity: 0,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 30,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white),
-                              ),
-                              child: Text(
-                                'عرض السريع',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                            ),
-                          ),
+                          color: LuxuryColors.silver,
                         ),
                       ),
                     ),
 
                     // Stock Badge
-                    if (item.number <= 5)
+                    if (item.number <= 5 && item.number > 0)
                       Positioned(
-                        top: 10,
-                        right: 10,
+                        top: 12,
+                        right: 12,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          color: Colors.white.withOpacity(0.9),
+                          color: LuxuryColors.gold,
                           child: Text(
                             'محدود',
                             style: TextStyle(
                               fontSize: 10,
+                              color: Colors.white,
                               letterSpacing: 0.5,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -548,45 +587,57 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
               ),
 
               // Product Info
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: TextStyle(
-                        fontSize: isDesktop ? 15 : 14,
-                        fontWeight: FontWeight.w400,
-                        height: 1.5,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.formattedPrice,
-                          style: TextStyle(
-                            fontSize: isDesktop ? 14 : 13,
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w300,
-                          ),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.all(isDesktop ? 20 : 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.name,
+                        style: TextStyle(
+                          fontSize: isDesktop ? 14 : 13,
+                          fontWeight: FontWeight.w400,
+                          height: 1.4,
+                          color: LuxuryColors.navy,
                         ),
-                        if (item.inStock)
-                          GestureDetector(
-                            onTap: () => _addToCart(item),
-                            child: Icon(
-                              Icons.add_circle_outline,
-                              size: 20,
-                              color: Colors.black54,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            item.formattedPrice,
+                            style: TextStyle(
+                              fontSize: isDesktop ? 16 : 14,
+                              color: LuxuryColors.navy,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                      ],
-                    ),
-                  ],
+                          if (item.inStock)
+                            GestureDetector(
+                              onTap: () => _addToCart(item),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: LuxuryColors.navy),
+                                ),
+                                child: Icon(
+                                  Icons.add,
+                                  size: 16,
+                                  color: LuxuryColors.navy,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -619,7 +670,6 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
 
     cartProvider.addToCart(item, quantity: quantity);
 
-    // Minimal notification
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -627,10 +677,20 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
           style: TextStyle(fontSize: 14),
         ),
         duration: Duration(seconds: 2),
-        backgroundColor: Colors.black87,
+        backgroundColor: LuxuryColors.navy,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         margin: EdgeInsets.all(20),
+        action: SnackBarAction(
+          label: 'عرض السلة',
+          textColor: LuxuryColors.gold,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => CartPage()),
+            );
+          },
+        ),
       ),
     );
   }
@@ -645,35 +705,61 @@ class _CategoryItemsPageState extends State<CategoryItemsPage> with SingleTicker
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Container(
+                width: 40,
+                height: 2,
+                color: LuxuryColors.gold,
+              ),
+              SizedBox(height: 24),
               Text(
                 'تسجيل الدخول مطلوب',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 1,
+                  color: LuxuryColors.navy,
                 ),
               ),
-              SizedBox(height: 30),
-              Container(
+              SizedBox(height: 12),
+              Text(
+                'يرجى تسجيل الدخول للمتابعة',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              SizedBox(height: 32),
+              SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/sign-in');
                   },
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    side: BorderSide(color: Colors.black87),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: LuxuryColors.navy,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     ),
+                    elevation: 0,
                   ),
                   child: Text(
                     'تسجيل الدخول',
-                    style: TextStyle(
-                      color: Colors.black87,
-                      letterSpacing: 1,
-                    ),
+                    style: TextStyle(letterSpacing: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'إلغاء',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
