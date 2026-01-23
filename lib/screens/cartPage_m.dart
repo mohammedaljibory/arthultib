@@ -631,9 +631,9 @@ class _CartPageState extends State<CartPage> {
                           SizedBox(height: 8),
                           Row(
                             children: [
-                              Icon(Icons.phone, color: Colors.grey[600], size: 20),
+                              Icon(user.email != null ? Icons.email : Icons.phone, color: Colors.grey[600], size: 20),
                               SizedBox(width: 8),
-                              Text(user.phoneNumber, style: TextStyle(fontSize: 16)),
+                              Text(user.email ?? user.phoneNumber ?? '', style: TextStyle(fontSize: 16)),
                             ],
                           ),
                         ],
@@ -939,6 +939,7 @@ class _CartPageState extends State<CartPage> {
         userId: user.uid,
         userName: user.name,
         userPhone: user.phoneNumber,
+        userEmail: user.email,
         address: address,
         latitude: latitude,
         longitude: longitude,

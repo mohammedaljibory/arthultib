@@ -12,7 +12,8 @@ class OrderService {
     required List<CartItem> items,
     required String userId,
     required String userName,
-    required String userPhone,
+    String? userPhone,
+    String? userEmail,
     required String address,
     double? latitude,
     double? longitude,
@@ -55,8 +56,8 @@ class OrderService {
         'customer': {
           'userId': userId,
           'name': userName,
-          'phone': userPhone,
-          'email': '', // Add if available
+          'phone': userPhone ?? '',
+          'email': userEmail ?? '',
         },
 
         // Delivery Information

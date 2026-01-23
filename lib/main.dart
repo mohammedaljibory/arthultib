@@ -23,7 +23,6 @@ import 'sections/gallery_section.dart';
 import 'sections/contact_section.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/sign_up_screen.dart';
-import 'screens/otp_verification_screen.dart';
 import 'screens/address_selection_screen.dart';
 
 void main() async {
