@@ -627,10 +627,10 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         onSelected: (value) {
           switch (value) {
             case 'profile':
-            // Handle profile navigation
+              Navigator.pushNamed(context, '/account');
               break;
             case 'orders':
-            // Handle orders navigation
+              Navigator.pushNamed(context, '/account');
               break;
             case 'logout':
               authProvider.signOut();
@@ -904,6 +904,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   ),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.pushNamed(context, '/account');
                   },
                 ),
               ),
@@ -920,6 +921,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   ),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.pushNamed(context, '/account');
                   },
                 ),
               ),
