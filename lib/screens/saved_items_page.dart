@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../language_provider.dart';
 import '../models/item.dart';
 import '../sections/product_details.dart';
 
@@ -10,9 +11,10 @@ class SavedItemsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Color(0xFFF5F5F5),
         appBar: AppBar(

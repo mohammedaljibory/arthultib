@@ -42,39 +42,34 @@ class _GallerySectionState extends State<GallerySection> with AutomaticKeepAlive
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100,
-        horizontal: isMobile ? 20 : 40,
+        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 48,
       ),
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              // Section Header
+              // Section Header - Modern Minimalist
               Column(
                 children: [
                   Text(
                     Translations.getText(context, 'gallerySectionTitle'),
                     style: TextStyle(
-                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
-                      fontWeight: FontWeight.w300,
-                      color: Color(0xFF004080),
-                      letterSpacing: 1.5,
+                      fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   Container(
-                    width: 80,
-                    height: 2,
+                    width: 48,
+                    height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Color(0xFF0288D1),
-                          Colors.transparent,
-                        ],
-                      ),
+                      color: Color(0xFF0066CC),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ],
@@ -144,20 +139,31 @@ class _GallerySectionState extends State<GallerySection> with AutomaticKeepAlive
 
   Widget _buildEmptyState() {
     return Container(
-      padding: EdgeInsets.all(40),
+      padding: EdgeInsets.all(48),
+      decoration: BoxDecoration(
+        color: Color(0xFFFAFBFC),
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         children: [
-          Icon(
-            Icons.photo_library_outlined,
-            size: 60,
-            color: Colors.grey[400],
+          Container(
+            padding: EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Color(0xFF0066CC).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Icon(
+              Icons.photo_library_outlined,
+              size: 48,
+              color: Color(0xFF0066CC),
+            ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 24),
           Text(
             Translations.getText(context, 'galleryNoImages'),
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
+              color: Color(0xFF6B7280),
             ),
             textAlign: TextAlign.center,
           ),
@@ -181,12 +187,12 @@ class _GallerySectionState extends State<GallerySection> with AutomaticKeepAlive
       itemCount: 6,
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: Color(0xFFF3F4F6),
+          highlightColor: Colors.white,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(20),
             ),
           ),
         );
@@ -230,17 +236,17 @@ class _OptimizedGalleryItemState extends State<OptimizedGalleryItem>
         tag: 'gallery_image_${widget.index}',
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 5,
-                offset: Offset(0, 4),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 24,
+                offset: Offset(0, 8),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(20),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -254,10 +260,10 @@ class _OptimizedGalleryItemState extends State<OptimizedGalleryItem>
                     fadeInDuration: Duration(milliseconds: 200),
                     fadeOutDuration: Duration(milliseconds: 200),
                     placeholder: (context, url) => Container(
-                      color: Colors.grey[100],
+                      color: Color(0xFFF3F4F6),
                       child: Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF0288D1),
+                          color: Color(0xFF0066CC),
                           strokeWidth: 2,
                         ),
                       ),
@@ -324,7 +330,7 @@ class _OptimizedGalleryItemState extends State<OptimizedGalleryItem>
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                       onTap: widget.onTap,
                     ),
                   ),

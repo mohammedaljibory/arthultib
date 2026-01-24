@@ -10,61 +10,59 @@ class AboutSection extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100,
-        horizontal: isMobile ? 20 : 40,
+        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 48,
       ),
       child: Center(
         child: Container(
-          constraints: BoxConstraints(maxWidth: 1200),
+          constraints: BoxConstraints(maxWidth: 1100),
           child: Column(
             children: [
-              // Section Header
+              // Section Header - Modern Minimalist
               Column(
                 children: [
                   Text(
                     Translations.getText(context, 'aboutSectionTitle'),
                     style: TextStyle(
-                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
-                      fontWeight: FontWeight.w300,
-                      color: Color(0xFF004080),
-                      letterSpacing: 1.5,
+                      fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   Container(
-                    width: 80,
-                    height: 2,
+                    width: 48,
+                    height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Color(0xFF0288D1),
-                          Colors.transparent,
-                        ],
-                      ),
+                      color: Color(0xFF0066CC),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 40 : 60),
+              SizedBox(height: isMobile ? 48 : 64),
 
               // About Content
-              Text(
-                Translations.getText(context, 'aboutSectionDescription'),
-                style: TextStyle(
-                  fontSize: isMobile ? 15 : 17,
-                  color: Colors.grey[700],
-                  height: 1.8,
-                  letterSpacing: 0.3,
+              Container(
+                constraints: BoxConstraints(maxWidth: 700),
+                child: Text(
+                  Translations.getText(context, 'aboutSectionDescription'),
+                  style: TextStyle(
+                    fontSize: isMobile ? 16 : 18,
+                    color: Color(0xFF6B7280),
+                    height: 1.9,
+                    letterSpacing: 0.2,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: isMobile ? 60 : 80),
+              SizedBox(height: isMobile ? 64 : 80),
 
-              // Vision & Mission Cards
+              // Vision & Mission Cards - Modern Glassmorphism
               isMobile
                   ? Column(
                 children: [
@@ -72,15 +70,13 @@ class AboutSection extends StatelessWidget {
                     title: Translations.getText(context, 'aboutVisionTitle'),
                     description: Translations.getText(context, 'aboutVisionDescription'),
                     icon: Icons.visibility_outlined,
-                    color: Color(0xFF004080),
                     isMobile: isMobile,
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: 24),
                   _buildInfoCard(
                     title: Translations.getText(context, 'aboutMissionTitle'),
                     description: Translations.getText(context, 'aboutMissionDescription'),
                     icon: Icons.flag_outlined,
-                    color: Color(0xFF0288D1),
                     isMobile: isMobile,
                   ),
                 ],
@@ -93,47 +89,45 @@ class AboutSection extends StatelessWidget {
                       title: Translations.getText(context, 'aboutVisionTitle'),
                       description: Translations.getText(context, 'aboutVisionDescription'),
                       icon: Icons.visibility_outlined,
-                      color: Color(0xFF004080),
                       isMobile: isMobile,
                     ),
                   ),
-                  SizedBox(width: 30),
+                  SizedBox(width: 32),
                   Expanded(
                     child: _buildInfoCard(
                       title: Translations.getText(context, 'aboutMissionTitle'),
                       description: Translations.getText(context, 'aboutMissionDescription'),
                       icon: Icons.flag_outlined,
-                      color: Color(0xFF0288D1),
                       isMobile: isMobile,
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 60 : 80),
+              SizedBox(height: isMobile ? 64 : 80),
 
-              // Company Logo
+              // Company Logo - Modern Container
               Container(
-                padding: EdgeInsets.all(30),
+                padding: EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
                   color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 18,
-                      offset: Offset(0, 10),
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
                     ),
                   ],
                 ),
                 child: Image.asset(
                   'assets/images/logo.png',
-                  height: isMobile ? 80 : 120,
+                  height: isMobile ? 80 : 100,
                   errorBuilder: (context, error, stackTrace) {
                     return Icon(
                       Icons.medical_services,
-                      size: isMobile ? 80 : 120,
-                      color: Color(0xFF004080),
+                      size: isMobile ? 80 : 100,
+                      color: Color(0xFF0066CC),
                     );
                   },
                 ),
@@ -149,57 +143,52 @@ class AboutSection extends StatelessWidget {
     required String title,
     required String description,
     required IconData icon,
-    required Color color,
     required bool isMobile,
   }) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 30 : 40),
+      padding: EdgeInsets.all(isMobile ? 32 : 40),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.1),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 5),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 24,
+            offset: Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(15),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Color(0xFF0066CC).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
-              size: 36,
-              color: color,
+              size: 32,
+              color: Color(0xFF0066CC),
             ),
           ),
-          SizedBox(height: 25),
+          SizedBox(height: 28),
           Text(
             title,
             style: TextStyle(
-              fontSize: isMobile ? 20 : 24,
-              fontWeight: FontWeight.w500,
-              color: color,
-              letterSpacing: 0.5,
+              fontSize: isMobile ? 22 : 24,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1A1A),
+              letterSpacing: -0.3,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 16),
           Text(
             description,
             style: TextStyle(
               fontSize: isMobile ? 14 : 15,
-              color: Colors.grey[600],
+              color: Color(0xFF6B7280),
               height: 1.7,
             ),
             textAlign: TextAlign.center,

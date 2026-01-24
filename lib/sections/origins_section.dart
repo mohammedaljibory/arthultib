@@ -29,45 +29,40 @@ class _OriginsSectionState extends State<OriginsSection>
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100,
-        horizontal: isMobile ? 20 : 40,
+        vertical: isMobile ? 80 : 120,
+        horizontal: isMobile ? 24 : 48,
       ),
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              // Section Header
+              // Section Header - Modern Minimalist
               Column(
                 children: [
                   Text(
                     Translations.getText(context, 'originsSectionTitle'),
                     style: TextStyle(
-                      fontSize: isMobile ? 28 : isTablet ? 36 : 42,
-                      fontWeight: FontWeight.w300,
-                      color: Color(0xFF004080),
-                      letterSpacing: 1.5,
+                      fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   Container(
-                    width: 80,
-                    height: 2,
+                    width: 48,
+                    height: 3,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Color(0xFF0288D1),
-                          Colors.transparent,
-                        ],
-                      ),
+                      color: Color(0xFF0066CC),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: isMobile ? 40 : 60),
+              SizedBox(height: isMobile ? 56 : 80),
 
               // Partners/Brands Grid with optimization
               StreamBuilder<QuerySnapshot>(
@@ -137,20 +132,38 @@ class _OriginsSectionState extends State<OriginsSection>
 
   Widget _buildEmptyState() {
     return Container(
-      padding: EdgeInsets.all(40),
+      padding: EdgeInsets.all(48),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          Icon(
-            Icons.handshake_outlined,
-            size: 60,
-            color: Colors.grey[400],
+          Container(
+            padding: EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Color(0xFF0066CC).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Icon(
+              Icons.handshake_outlined,
+              size: 48,
+              color: Color(0xFF0066CC),
+            ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 24),
           Text(
             Translations.getText(context, 'originsNoData'),
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
+              color: Color(0xFF6B7280),
             ),
             textAlign: TextAlign.center,
           ),
@@ -161,19 +174,19 @@ class _OriginsSectionState extends State<OriginsSection>
 
   Widget _buildShimmerGrid(bool isMobile, bool isTablet) {
     return Wrap(
-      spacing: 30,
-      runSpacing: 30,
+      spacing: 24,
+      runSpacing: 24,
       alignment: WrapAlignment.center,
       children: List.generate(5, (index) {
         return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: Color(0xFFF3F4F6),
+          highlightColor: Colors.white,
           child: Container(
-            width: isMobile ? double.infinity : 250,
-            height: 150,
+            width: isMobile ? double.infinity : 260,
+            height: 160,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(24),
             ),
           ),
         );
@@ -235,30 +248,38 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
           child: Container(
-            padding: EdgeInsets.all(30),
+            padding: EdgeInsets.all(36),
             constraints: BoxConstraints(maxWidth: 400),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.handshake_outlined,
-                  size: 48,
-                  color: Color(0xFF004080),
+                Container(
+                  padding: EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF0066CC).withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(
+                    Icons.handshake_outlined,
+                    size: 40,
+                    color: Color(0xFF0066CC),
+                  ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 24),
                 Text(
                   partnerName,
                   style: TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF004080),
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A1A),
+                    letterSpacing: -0.3,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 12),
                 Text(
                   Translations.getText(
                     context,
@@ -267,26 +288,28 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
                   ),
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.grey[600],
-                    height: 1.5,
+                    color: Color(0xFF6B7280),
+                    height: 1.6,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 25),
-                TextButton(
+                SizedBox(height: 28),
+                ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Color(0xFF004080),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF0066CC),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(50),
                     ),
                   ),
                   child: Text(
                     Translations.getText(context, 'close'),
                     style: TextStyle(
-                      color: Colors.white,
                       fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -319,26 +342,26 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: widget.isMobile ? double.infinity : 250,
-              height: 150,
+              width: widget.isMobile ? double.infinity : 260,
+              height: 160,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(_isHovered ? 0.2 : 0.1),
-                    blurRadius: _isHovered ? 10 : 5,
-                    offset: Offset(0, _isHovered ? 4 : 2),
+                    color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.04),
+                    blurRadius: _isHovered ? 32 : 24,
+                    offset: Offset(0, _isHovered ? 12 : 8),
                   ),
                 ],
               ),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(24),
                   onTap: () => _showPartnerInfo(context, name),
                   child: Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: EdgeInsets.all(24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -352,8 +375,8 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
                               fadeInDuration: Duration(milliseconds: 200),
                               fadeOutDuration: Duration(milliseconds: 200),
                               placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
+                                baseColor: Color(0xFFF3F4F6),
+                                highlightColor: Colors.white,
                                 child: Container(
                                   color: Colors.white,
                                 ),
@@ -361,7 +384,7 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
                               errorWidget: (context, url, error) => Icon(
                                 Icons.business,
                                 size: 40,
-                                color: Colors.grey[400],
+                                color: Color(0xFF9CA3AF),
                               ),
                             ),
                           )
@@ -369,15 +392,15 @@ class _OptimizedPartnerCardState extends State<OptimizedPartnerCard>
                           Icon(
                             Icons.business,
                             size: 40,
-                            color: Colors.grey[400],
+                            color: Color(0xFF9CA3AF),
                           ),
-                        SizedBox(height: 15),
+                        SizedBox(height: 16),
                         Text(
                           name,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF004080),
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1A1A1A),
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 1,

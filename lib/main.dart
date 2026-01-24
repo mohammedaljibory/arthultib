@@ -23,7 +23,6 @@ import 'sections/gallery_section.dart';
 import 'sections/contact_section.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/sign_up_screen.dart';
-import 'screens/otp_verification_screen.dart';
 import 'screens/address_selection_screen.dart';
 
 void main() async {
@@ -69,14 +68,73 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: Provider.of<LanguageProvider>(context).languageCode == 'ar' ? 'Tajawal' : 'Roboto',
-        primaryColor: Color(0xFF004080),
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: Color(0xFF004080),
-          secondary: Color(0xFF0288D1),
+        primaryColor: Color(0xFF0066CC),
+        scaffoldBackgroundColor: Color(0xFFFFFFFF),
+        colorScheme: ColorScheme.light(
+          primary: Color(0xFF0066CC),
+          secondary: Color(0xFF3B82F6),
+          surface: Color(0xFFFAFBFC),
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: Color(0xFF1A1A1A),
         ),
         // Enable Material 3 for better performance
         useMaterial3: true,
+        // Modern text theme
+        textTheme: TextTheme(
+          displayLarge: TextStyle(
+            fontSize: 56,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -1.5,
+            color: Color(0xFF1A1A1A),
+          ),
+          displayMedium: TextStyle(
+            fontSize: 42,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            color: Color(0xFF1A1A1A),
+          ),
+          headlineLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1A1A1A),
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF6B7280),
+            height: 1.7,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF6B7280),
+            height: 1.6,
+          ),
+        ),
+        // Modern elevated button theme
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF0066CC),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+        ),
+        // Modern outlined button theme
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Color(0xFF0066CC),
+            side: BorderSide(color: Color(0xFF0066CC), width: 1.5),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+        ),
       ),
       home: AuthStateHandler(),
     );
@@ -111,7 +169,8 @@ class _AuthStateHandlerState extends State<AuthStateHandler> {
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF004080),
+                color: Color(0xFF0066CC),
+                strokeWidth: 2,
               ),
             ),
           );
@@ -278,17 +337,17 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(isDesktop ? 80 : 65),
+        preferredSize: Size.fromHeight(isDesktop ? 72 : 60),
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 200),
+          duration: Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: _isScrolled ? Colors.white : Colors.white.withOpacity(0.95),
+            color: _isScrolled ? Colors.white : Colors.white.withOpacity(0.98),
             boxShadow: _isScrolled
                 ? [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 10,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 20,
+                offset: Offset(0, 4),
               ),
             ]
                 : null,
@@ -296,22 +355,23 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            toolbarHeight: isDesktop ? 80 : 65,
+            toolbarHeight: isDesktop ? 72 : 60,
             title: Row(
               children: [
-                // Logo with hero animation potential
+                // Logo with modern styling
                 Hero(
                   tag: 'app_logo',
                   child: Image.asset(
                     'assets/images/fullLogo.png',
-                    height: isDesktop ? 60 : 45,
+                    height: isDesktop ? 48 : 40,
                     errorBuilder: (context, error, stackTrace) {
                       return Text(
                         'ARTHULTIB',
                         style: TextStyle(
-                          color: Color(0xFF004080),
-                          fontSize: isDesktop ? 24 : 20,
-                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0066CC),
+                          fontSize: isDesktop ? 22 : 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
                         ),
                       );
                     },
@@ -321,7 +381,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ),
             actions: [
               if (isDesktop) ...[
-                // Navigation items with hover effects
+                // Navigation items with subtle hover effects
                 ...sections.map((section) {
                   return _buildNavItem(
                     text: section['name'],
@@ -329,24 +389,25 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   );
                 }).toList(),
 
-                SizedBox(width: 20),
+                SizedBox(width: 24),
 
-                // Store button with premium styling
+                // Store button with modern pill styling
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 15),
+                  margin: EdgeInsets.symmetric(vertical: 14),
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.pushNamed(context, '/store'),
                     icon: Icon(Icons.store_outlined, size: 18),
                     label: Text(
                       languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF004080),
+                      backgroundColor: Color(0xFF0066CC),
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                   ),
@@ -358,27 +419,47 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 else
                   _buildLoginButton(languageProvider),
 
-                // Language switcher
-                IconButton(
-                  icon: Icon(
-                    Icons.language,
-                    color: Color(0xFF004080),
-                    size: 22,
+                // Language switcher with modern style
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 8),
+                  child: IconButton(
+                    icon: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.language,
+                        color: Color(0xFF6B7280),
+                        size: 20,
+                      ),
+                    ),
+                    tooltip: Translations.getText(context, 'changeLanguage'),
+                    onPressed: () {
+                      languageProvider.setLanguage(
+                          languageProvider.languageCode == 'ar' ? 'en' : 'ar'
+                      );
+                    },
                   ),
-                  tooltip: Translations.getText(context, 'changeLanguage'),
-                  onPressed: () {
-                    languageProvider.setLanguage(
-                        languageProvider.languageCode == 'ar' ? 'en' : 'ar'
-                    );
-                  },
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 16),
               ] else ...[
-                // Mobile menu button
+                // Mobile menu button with modern style
                 Builder(
-                  builder: (context) => IconButton(
-                    icon: Icon(Icons.menu, color: Color(0xFF004080)),
-                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                  builder: (context) => Container(
+                    margin: EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      icon: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.menu, color: Color(0xFF1A1A1A), size: 22),
+                      ),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    ),
                   ),
                 ),
               ],
@@ -412,7 +493,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: Container(
                     key: _aboutKey,
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: Color(0xFFFAFBFC),
                     ),
                     child: AboutSection(),
                   ),
@@ -434,11 +515,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: Container(
                     key: _originsKey,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.grey[50]!, Colors.white],
-                      ),
+                      color: Color(0xFFFAFBFC),
                     ),
                     child: OriginsSection(),
                   ),
@@ -460,7 +537,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: Container(
                     key: _contactKey,
                     decoration: BoxDecoration(
-                      color: Color(0xFF004080).withOpacity(0.03),
+                      color: Color(0xFFFAFBFC),
                     ),
                     child: ContactSection(),
                   ),
@@ -474,9 +551,12 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         scale: _fabAnimation,
         child: FloatingActionButton(
           onPressed: _showScrollToTop ? _scrollToTop : null,
-          backgroundColor: Color(0xFF004080),
-          elevation: 4,
-          child: Icon(Icons.arrow_upward, color: Colors.white),
+          backgroundColor: Color(0xFF0066CC),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(Icons.arrow_upward, color: Colors.white, size: 20),
           mini: true,
         ),
       ),
@@ -490,15 +570,15 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color: Color(0xFF004080),
+          color: Color(0xFF1A1A1A),
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -508,37 +588,49 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   Widget _buildUserMenu(AuthProvider authProvider, LanguageProvider languageProvider) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      margin: EdgeInsets.symmetric(horizontal: 12),
       child: PopupMenuButton<String>(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        offset: Offset(0, 50),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: Color(0xFF004080).withOpacity(0.3)),
-            borderRadius: BorderRadius.circular(20),
+            color: Color(0xFFF3F4F6),
+            borderRadius: BorderRadius.circular(50),
           ),
           child: Row(
             children: [
-              Icon(Icons.person_outline, color: Color(0xFF004080), size: 20),
-              SizedBox(width: 8),
+              Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Color(0xFF0066CC).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.person_outline, color: Color(0xFF0066CC), size: 18),
+              ),
+              SizedBox(width: 10),
               ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 150),
+                constraints: BoxConstraints(maxWidth: 120),
                 child: Text(
                   authProvider.currentUser?.name ?? '',
-                  style: TextStyle(color: Color(0xFF004080), fontSize: 14),
+                  style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 14, fontWeight: FontWeight.w500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(Icons.arrow_drop_down, color: Color(0xFF004080)),
+              SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down, color: Color(0xFF6B7280), size: 20),
             ],
           ),
         ),
         onSelected: (value) {
           switch (value) {
             case 'profile':
-            // Handle profile navigation
+              Navigator.pushNamed(context, '/account');
               break;
             case 'orders':
-            // Handle orders navigation
+              Navigator.pushNamed(context, '/account');
               break;
             case 'logout':
               authProvider.signOut();
@@ -551,8 +643,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             value: 'profile',
             child: Row(
               children: [
-                Icon(Icons.person_outline, color: Color(0xFF004080)),
-                SizedBox(width: 8),
+                Icon(Icons.person_outline, color: Color(0xFF6B7280), size: 20),
+                SizedBox(width: 12),
                 Text(languageProvider.languageCode == 'ar' ? 'الملف الشخصي' : 'Profile'),
               ],
             ),
@@ -561,8 +653,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             value: 'orders',
             child: Row(
               children: [
-                Icon(Icons.shopping_bag_outlined, color: Color(0xFF004080)),
-                SizedBox(width: 8),
+                Icon(Icons.shopping_bag_outlined, color: Color(0xFF6B7280), size: 20),
+                SizedBox(width: 12),
                 Text(languageProvider.languageCode == 'ar' ? 'طلباتي' : 'My Orders'),
               ],
             ),
@@ -572,11 +664,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             value: 'logout',
             child: Row(
               children: [
-                Icon(Icons.logout, color: Colors.red),
-                SizedBox(width: 8),
+                Icon(Icons.logout, color: Color(0xFFEF4444), size: 20),
+                SizedBox(width: 12),
                 Text(
                   languageProvider.languageCode == 'ar' ? 'تسجيل الخروج' : 'Logout',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: Color(0xFFEF4444)),
                 ),
               ],
             ),
@@ -588,19 +680,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   Widget _buildLoginButton(LanguageProvider languageProvider) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       child: OutlinedButton(
         onPressed: () => Navigator.pushNamed(context, '/sign-in'),
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Color(0xFF004080)),
+          side: BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(50),
           ),
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          backgroundColor: Colors.transparent,
         ),
         child: Text(
           languageProvider.languageCode == 'ar' ? 'تسجيل الدخول' : 'Login',
-          style: TextStyle(color: Color(0xFF004080), fontSize: 14),
+          style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
     );
@@ -613,71 +706,89 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       List<Map<String, dynamic>> sections,
       ) {
     return Drawer(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          bottomLeft: Radius.circular(24),
+        ),
+      ),
       child: Container(
         color: Colors.white,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            // Modern minimal header
+            Container(
+              padding: EdgeInsets.fromLTRB(24, 60, 24, 32),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF004080),
-                    Color(0xFF0288D1),
-                  ],
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFF3F4F6), width: 1),
                 ),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (authProvider.isAuthenticated) ...[
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        authProvider.currentUser?.name.substring(0, 1).toUpperCase() ?? 'U',
-                        style: TextStyle(
-                          fontSize: 28,
-                          color: Color(0xFF004080),
-                          fontWeight: FontWeight.bold,
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF0066CC).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Center(
+                        child: Text(
+                          authProvider.currentUser?.name.substring(0, 1).toUpperCase() ?? 'U',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Color(0xFF0066CC),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 16),
                     Text(
                       authProvider.currentUser?.name ?? '',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1A1A1A),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                       overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      languageProvider.languageCode == 'ar' ? 'مرحباً بك' : 'Welcome back',
+                      style: TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 14,
+                      ),
                     ),
                   ] else ...[
                     Image.asset(
                       'assets/images/logo.png',
-                      height: 60,
+                      height: 48,
                       errorBuilder: (context, error, stackTrace) {
                         return Text(
                           'ARTHULTIB',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
+                            color: Color(0xFF0066CC),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
                           ),
                         );
                       },
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 12),
                     Text(
                       languageProvider.languageCode == 'ar'
                           ? 'شركة أرض الطب'
                           : 'Medical Solutions',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Color(0xFF6B7280),
                         fontSize: 14,
                       ),
                     ),
@@ -686,28 +797,30 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ),
             ),
 
-            // Store link with highlight
+            SizedBox(height: 16),
+
+            // Store link with modern highlight
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Color(0xFF004080).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: Color(0xFF0066CC),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: ListTile(
-                leading: Icon(Icons.store_outlined, color: Color(0xFF004080)),
+                leading: Icon(Icons.store_outlined, color: Colors.white),
                 title: Text(
                   languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
                 ),
                 trailing: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     'NEW',
-                    style: TextStyle(color: Colors.white, fontSize: 10),
+                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
                   ),
                 ),
                 onTap: () {
@@ -717,66 +830,135 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ),
             ),
 
-            Divider(height: 1, indent: 16, endIndent: 16),
+            SizedBox(height: 16),
 
             // Section links
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                languageProvider.languageCode == 'ar' ? 'التنقل' : 'Navigation',
+                style: TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
             ...sections.map((section) {
-              return ListTile(
-                leading: Icon(section['icon'], color: Color(0xFF004080), size: 22),
-                title: Text(section['name']),
-                onTap: () {
-                  Navigator.pop(context);
-                  _scrollToSection(section['key']);
-                },
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: Icon(section['icon'], color: Color(0xFF6B7280), size: 22),
+                  title: Text(
+                    section['name'],
+                    style: TextStyle(
+                      color: Color(0xFF1A1A1A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _scrollToSection(section['key']);
+                  },
+                ),
               );
             }).toList(),
 
-            Divider(height: 1, indent: 16, endIndent: 16),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Divider(color: Color(0xFFF3F4F6)),
+            ),
+            SizedBox(height: 8),
 
             // User options
             if (authProvider.isAuthenticated) ...[
-              ListTile(
-                leading: Icon(Icons.person_outline, color: Color(0xFF004080)),
-                title: Text(languageProvider.languageCode == 'ar' ? 'الملف الشخصي' : 'Profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to profile
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.shopping_bag_outlined, color: Color(0xFF004080)),
-                title: Text(languageProvider.languageCode == 'ar' ? 'طلباتي' : 'My Orders'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to orders
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.logout, color: Colors.red),
-                title: Text(
-                  languageProvider.languageCode == 'ar' ? 'تسجيل الخروج' : 'Logout',
-                  style: TextStyle(color: Colors.red),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  languageProvider.languageCode == 'ar' ? 'الحساب' : 'Account',
+                  style: TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  authProvider.signOut();
-                  Navigator.pushReplacementNamed(context, '/sign-in');
-                },
+              ),
+              SizedBox(height: 8),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: Icon(Icons.person_outline, color: Color(0xFF6B7280)),
+                  title: Text(
+                    languageProvider.languageCode == 'ar' ? 'الملف الشخصي' : 'Profile',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/account');
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: Icon(Icons.shopping_bag_outlined, color: Color(0xFF6B7280)),
+                  title: Text(
+                    languageProvider.languageCode == 'ar' ? 'طلباتي' : 'My Orders',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/account');
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: Icon(Icons.logout, color: Color(0xFFEF4444)),
+                  title: Text(
+                    languageProvider.languageCode == 'ar' ? 'تسجيل الخروج' : 'Logout',
+                    style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    authProvider.signOut();
+                    Navigator.pushReplacementNamed(context, '/sign-in');
+                  },
+                ),
               ),
             ] else ...[
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.login),
+                  icon: Icon(Icons.login, size: 20),
                   label: Text(
                     languageProvider.languageCode == 'ar' ? 'تسجيل الدخول' : 'Login',
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF004080),
+                    backgroundColor: Color(0xFF1A1A1A),
                     foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 44),
+                    elevation: 0,
+                    minimumSize: Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   onPressed: () {
@@ -787,42 +969,56 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ),
             ],
 
-            Divider(height: 1, indent: 16, endIndent: 16),
+            SizedBox(height: 8),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Divider(color: Color(0xFFF3F4F6)),
+            ),
 
             // Language switcher
-            ListTile(
-              leading: Icon(Icons.language, color: Color(0xFF004080)),
-              title: Text(Translations.getText(context, 'changeLanguage')),
-              trailing: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Color(0xFF004080).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(15),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
-                  languageProvider.languageCode == 'ar' ? 'EN' : 'AR',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004080),
+                leading: Icon(Icons.language, color: Color(0xFF6B7280)),
+                title: Text(
+                  Translations.getText(context, 'changeLanguage'),
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                trailing: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    languageProvider.languageCode == 'ar' ? 'EN' : 'AR',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1A1A1A),
+                      fontSize: 13,
+                    ),
                   ),
                 ),
+                onTap: () {
+                  languageProvider.setLanguage(
+                      languageProvider.languageCode == 'ar' ? 'en' : 'ar'
+                  );
+                  Navigator.pop(context);
+                },
               ),
-              onTap: () {
-                languageProvider.setLanguage(
-                    languageProvider.languageCode == 'ar' ? 'en' : 'ar'
-                );
-                Navigator.pop(context);
-              },
             ),
 
             // Footer info
-            SizedBox(height: 20),
+            SizedBox(height: 24),
             Padding(
               padding: EdgeInsets.all(16),
               child: Text(
                 '© 2024 ARTHULTIB',
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: Color(0xFF9CA3AF),
                   fontSize: 12,
                 ),
                 textAlign: TextAlign.center,
