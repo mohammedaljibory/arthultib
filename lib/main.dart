@@ -219,6 +219,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   double _scrollPosition = 0;
   bool _showScrollToTop = false;
   int _activeSection = 0; // Track active section for highlighting
+  int _lastActiveSection = 0; // Track last active to prevent flickering
 
   // Section keys for scroll navigation
   final GlobalKey _homeKey = GlobalKey();
@@ -251,16 +252,12 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     final newIsScrolled = offset > 50;
     final newShowScrollToTop = offset > 300;
 
-    // Detect active section based on scroll position
-    final newActiveSection = _detectActiveSection();
-
-    // Only update state if values actually changed
-    if (newIsScrolled != _isScrolled || newShowScrollToTop != _showScrollToTop || newActiveSection != _activeSection) {
+    // Update scroll state immediately (no flickering here)
+    if (newIsScrolled != _isScrolled || newShowScrollToTop != _showScrollToTop) {
       setState(() {
         _isScrolled = newIsScrolled;
         _showScrollToTop = newShowScrollToTop;
         _scrollPosition = offset;
-        _activeSection = newActiveSection;
       });
 
       // Animate FAB
@@ -270,20 +267,31 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         _fabAnimationController.reverse();
       }
     }
+
+    // Detect active section with stability check
+    final newActiveSection = _detectActiveSection();
+    if (newActiveSection != _activeSection && newActiveSection == _lastActiveSection) {
+      // Only update if the new section is stable (same as last detected)
+      setState(() {
+        _activeSection = newActiveSection;
+      });
+    }
+    _lastActiveSection = newActiveSection;
   }
 
   int _detectActiveSection() {
     final keys = [_homeKey, _aboutKey, _productsKey, _originsKey, _galleryKey, _contactKey];
     final screenHeight = MediaQuery.of(context).size.height;
-    final triggerPoint = screenHeight * 0.3; // 30% from top of screen
+    final triggerPoint = screenHeight * 0.4; // 40% from top of screen for more stability
 
     for (int i = keys.length - 1; i >= 0; i--) {
       final key = keys[i];
-      final context = key.currentContext;
-      if (context != null) {
-        final box = context.findRenderObject() as RenderBox?;
-        if (box != null) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
           final position = box.localToGlobal(Offset.zero);
+          // Add hysteresis: section must be well within view
           if (position.dy <= triggerPoint) {
             return i;
           }
