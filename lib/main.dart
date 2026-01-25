@@ -386,122 +386,125 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ]
                 : null,
           ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            toolbarHeight: isDesktop ? 72 : 60,
-            title: Row(
-              children: [
-                // Logo with modern styling
-                Hero(
-                  tag: 'app_logo',
-                  child: Image.asset(
-                    'assets/images/fullLogo.png',
-                    height: isDesktop ? 48 : 40,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Text(
-                        'ARTHULTIB',
-                        style: TextStyle(
-                          color: Color(0xFF0066CC),
-                          fontSize: isDesktop ? 22 : 18,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
+          child: SafeArea(
+            child: Container(
+              height: isDesktop ? 72 : 60,
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
+              child: Row(
+                children: [
+                  // LEFT SIDE: Language, Login, Store
+                  if (isDesktop) ...[
+                    // Language switcher
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        icon: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.language,
+                            color: Color(0xFF6B7280),
+                            size: 20,
+                          ),
                         ),
+                        tooltip: Translations.getText(context, 'changeLanguage'),
+                        onPressed: () {
+                          languageProvider.setLanguage(
+                              languageProvider.languageCode == 'ar' ? 'en' : 'ar'
+                          );
+                        },
+                      ),
+                    ),
+
+                    // User menu or login
+                    if (authProvider.isAuthenticated)
+                      _buildUserMenu(authProvider, languageProvider)
+                    else
+                      _buildLoginButton(languageProvider),
+
+                    // Store button
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 8),
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.pushNamed(context, '/store'),
+                        icon: Icon(Icons.store_outlined, size: 18),
+                        label: Text(
+                          languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF0066CC),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // MIDDLE: Spacer
+                  Expanded(child: SizedBox()),
+
+                  // RIGHT SIDE: Navigation sections (Home first/rightmost)
+                  if (isDesktop) ...[
+                    ...sections.map((section) {
+                      final index = sections.indexOf(section);
+                      return _buildNavItem(
+                        text: section['name'],
+                        onPressed: () => _scrollToSection(section['key']),
+                        isActive: _activeSection == index,
                       );
-                    },
+                    }).toList(),
+                    SizedBox(width: 16),
+                  ],
+
+                  // Logo on the right
+                  Hero(
+                    tag: 'app_logo',
+                    child: Image.asset(
+                      'assets/images/fullLogo.png',
+                      height: isDesktop ? 48 : 40,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Text(
+                          'ARTHULTIB',
+                          style: TextStyle(
+                            color: Color(0xFF0066CC),
+                            fontSize: isDesktop ? 22 : 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+
+                  // Mobile menu button
+                  if (!isDesktop)
+                    Builder(
+                      builder: (context) => Container(
+                        margin: EdgeInsets.only(left: 8),
+                        child: IconButton(
+                          icon: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(Icons.menu, color: Color(0xFF1A1A1A), size: 22),
+                          ),
+                          onPressed: () => Scaffold.of(context).openEndDrawer(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-            actions: [
-              if (isDesktop) ...[
-                // Language switcher first (leftmost)
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                  child: IconButton(
-                    icon: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.language,
-                        color: Color(0xFF6B7280),
-                        size: 20,
-                      ),
-                    ),
-                    tooltip: Translations.getText(context, 'changeLanguage'),
-                    onPressed: () {
-                      languageProvider.setLanguage(
-                          languageProvider.languageCode == 'ar' ? 'en' : 'ar'
-                      );
-                    },
-                  ),
-                ),
-
-                // User menu or login
-                if (authProvider.isAuthenticated)
-                  _buildUserMenu(authProvider, languageProvider)
-                else
-                  _buildLoginButton(languageProvider),
-
-                // Store button
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 14),
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/store'),
-                    icon: Icon(Icons.store_outlined, size: 18),
-                    label: Text(
-                      languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0066CC),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(width: 24),
-
-                // Navigation items - reversed order so Home is on the right
-                ...sections.reversed.toList().asMap().entries.map((entry) {
-                  final reversedIndex = sections.length - 1 - entry.key;
-                  final section = entry.value;
-                  return _buildNavItem(
-                    text: section['name'],
-                    onPressed: () => _scrollToSection(section['key']),
-                    isActive: _activeSection == reversedIndex,
-                  );
-                }).toList(),
-
-                SizedBox(width: 16),
-              ] else ...[
-                // Mobile menu button with modern style
-                Builder(
-                  builder: (context) => Container(
-                    margin: EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      icon: Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.menu, color: Color(0xFF1A1A1A), size: 22),
-                      ),
-                      onPressed: () => Scaffold.of(context).openEndDrawer(),
-                    ),
-                  ),
-                ),
-              ],
-            ],
           ),
         ),
       ),
