@@ -218,6 +218,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   bool _isScrolled = false;
   double _scrollPosition = 0;
   bool _showScrollToTop = false;
+  int _activeSection = 0; // Track active section for highlighting
 
   // Section keys for scroll navigation
   final GlobalKey _homeKey = GlobalKey();
@@ -250,12 +251,16 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     final newIsScrolled = offset > 50;
     final newShowScrollToTop = offset > 300;
 
+    // Detect active section based on scroll position
+    final newActiveSection = _detectActiveSection();
+
     // Only update state if values actually changed
-    if (newIsScrolled != _isScrolled || newShowScrollToTop != _showScrollToTop) {
+    if (newIsScrolled != _isScrolled || newShowScrollToTop != _showScrollToTop || newActiveSection != _activeSection) {
       setState(() {
         _isScrolled = newIsScrolled;
         _showScrollToTop = newShowScrollToTop;
         _scrollPosition = offset;
+        _activeSection = newActiveSection;
       });
 
       // Animate FAB
@@ -265,6 +270,27 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         _fabAnimationController.reverse();
       }
     }
+  }
+
+  int _detectActiveSection() {
+    final keys = [_homeKey, _aboutKey, _productsKey, _originsKey, _galleryKey, _contactKey];
+    final screenHeight = MediaQuery.of(context).size.height;
+    final triggerPoint = screenHeight * 0.3; // 30% from top of screen
+
+    for (int i = keys.length - 1; i >= 0; i--) {
+      final key = keys[i];
+      final context = key.currentContext;
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final position = box.localToGlobal(Offset.zero);
+          if (position.dy <= triggerPoint) {
+            return i;
+          }
+        }
+      }
+    }
+    return 0;
   }
 
   @override
@@ -381,17 +407,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ),
             actions: [
               if (isDesktop) ...[
-                // Navigation items with subtle hover effects
-                ...sections.map((section) {
+                // Navigation items with active section highlighting
+                ...sections.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final section = entry.value;
                   return _buildNavItem(
                     text: section['name'],
                     onPressed: () => _scrollToSection(section['key']),
+                    isActive: _activeSection == index,
                   );
                 }).toList(),
 
                 SizedBox(width: 24),
 
-                // Store button with modern pill styling
+                // Store button with modern pill styling (at the end)
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 14),
                   child: ElevatedButton.icon(
@@ -566,21 +595,27 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Widget _buildNavItem({
     required String text,
     required VoidCallback onPressed,
+    bool isActive = false,
   }) {
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      margin: EdgeInsets.symmetric(horizontal: 2),
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          backgroundColor: isActive ? Color(0xFF0066CC).withOpacity(0.1) : Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Color(0xFF1A1A1A),
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isActive ? Color(0xFF0066CC) : Color(0xFF1A1A1A),
+            fontSize: 14,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+          ),
         ),
       ),
     );
@@ -799,7 +834,54 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
             SizedBox(height: 16),
 
-            // Store link with modern highlight
+            // Section links first
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                languageProvider.languageCode == 'ar' ? 'التنقل' : 'Navigation',
+                style: TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            ...sections.asMap().entries.map((entry) {
+              final index = entry.key;
+              final section = entry.value;
+              final isActive = _activeSection == index;
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  tileColor: isActive ? Color(0xFF0066CC).withOpacity(0.1) : null,
+                  leading: Icon(
+                    section['icon'],
+                    color: isActive ? Color(0xFF0066CC) : Color(0xFF6B7280),
+                    size: 22,
+                  ),
+                  title: Text(
+                    section['name'],
+                    style: TextStyle(
+                      color: isActive ? Color(0xFF0066CC) : Color(0xFF1A1A1A),
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _scrollToSection(section['key']);
+                  },
+                ),
+              );
+            }).toList(),
+
+            SizedBox(height: 16),
+
+            // Store link at the end
             Container(
               margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
@@ -829,45 +911,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 },
               ),
             ),
-
-            SizedBox(height: 16),
-
-            // Section links
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                languageProvider.languageCode == 'ar' ? 'التنقل' : 'Navigation',
-                style: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            ...sections.map((section) {
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  leading: Icon(section['icon'], color: Color(0xFF6B7280), size: 22),
-                  title: Text(
-                    section['name'],
-                    style: TextStyle(
-                      color: Color(0xFF1A1A1A),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _scrollToSection(section['key']);
-                  },
-                ),
-              );
-            }).toList(),
 
             SizedBox(height: 16),
             Padding(
