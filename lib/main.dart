@@ -415,48 +415,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ),
             actions: [
               if (isDesktop) ...[
-                // Navigation items with active section highlighting
-                ...sections.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final section = entry.value;
-                  return _buildNavItem(
-                    text: section['name'],
-                    onPressed: () => _scrollToSection(section['key']),
-                    isActive: _activeSection == index,
-                  );
-                }).toList(),
-
-                SizedBox(width: 24),
-
-                // Store button with modern pill styling (at the end)
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 14),
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/store'),
-                    icon: Icon(Icons.store_outlined, size: 18),
-                    label: Text(
-                      languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0066CC),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // User menu or login
-                if (authProvider.isAuthenticated)
-                  _buildUserMenu(authProvider, languageProvider)
-                else
-                  _buildLoginButton(languageProvider),
-
-                // Language switcher with modern style
+                // Language switcher first (leftmost)
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   child: IconButton(
@@ -480,6 +439,48 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                     },
                   ),
                 ),
+
+                // User menu or login
+                if (authProvider.isAuthenticated)
+                  _buildUserMenu(authProvider, languageProvider)
+                else
+                  _buildLoginButton(languageProvider),
+
+                // Store button
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 14),
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/store'),
+                    icon: Icon(Icons.store_outlined, size: 18),
+                    label: Text(
+                      languageProvider.languageCode == 'ar' ? 'المتجر' : 'Store',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF0066CC),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 24),
+
+                // Navigation items - reversed order so Home is on the right
+                ...sections.reversed.toList().asMap().entries.map((entry) {
+                  final reversedIndex = sections.length - 1 - entry.key;
+                  final section = entry.value;
+                  return _buildNavItem(
+                    text: section['name'],
+                    onPressed: () => _scrollToSection(section['key']),
+                    isActive: _activeSection == reversedIndex,
+                  );
+                }).toList(),
+
                 SizedBox(width: 16),
               ] else ...[
                 // Mobile menu button with modern style
