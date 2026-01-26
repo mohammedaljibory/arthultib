@@ -411,7 +411,7 @@ class _AccountPageState extends State<AccountPage> {
             ),
             child: Center(
               child: Text(
-                user.name.substring(0, 1).toUpperCase(),
+                (user.name.isNotEmpty) ? user.name.substring(0, 1).toUpperCase() : '?',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -424,7 +424,7 @@ class _AccountPageState extends State<AccountPage> {
 
           // User Name
           Text(
-            user.name,
+            user.name.isNotEmpty ? user.name : 'مستخدم',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -433,13 +433,24 @@ class _AccountPageState extends State<AccountPage> {
           SizedBox(height: 5),
 
           // Phone Number
-          Text(
-            user.phoneNumber,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+          if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
+            Text(
+              user.phoneNumber!,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
-          ),
+
+          // Email (if phone is not available)
+          if ((user.phoneNumber == null || user.phoneNumber!.isEmpty) && user.email != null)
+            Text(
+              user.email!,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
 
           // Address
           if (user.address != null && user.address!.isNotEmpty)
