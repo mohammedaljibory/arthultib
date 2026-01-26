@@ -183,14 +183,11 @@ class OrderService {
         },
       );
 
-      // 4. Update inventory for each item (decrement stock)
+      // 4. Log item details for admin reference (no stock modification - handled by control app)
       for (var item in items) {
         final itemRef = _firestore.collection('items1').doc(item.item.id);
         batch.update(itemRef, {
-          'Number': FieldValue.increment(-item.quantity),
           'lastUpdated': FieldValue.serverTimestamp(),
-          'lastSoldAt': FieldValue.serverTimestamp(),
-          'totalSold': FieldValue.increment(item.quantity),
         });
       }
 
@@ -425,19 +422,8 @@ class OrderService {
       // Update order status
       await updateOrderStatus(orderId, 'cancelled');
 
-      // Restore inventory
+      // Note: No inventory restoration needed - stock is managed by control app
       final batch = _firestore.batch();
-
-      for (var item in order.items) {
-        final itemRef = _firestore.collection('items1').doc(item.productId);
-
-        // Increment the quantity back (restore stock)
-        batch.update(itemRef, {
-          'Number': FieldValue.increment(item.quantity),
-          'lastUpdated': FieldValue.serverTimestamp(),
-          'totalSold': FieldValue.increment(-item.quantity),
-        });
-      }
 
       // Send cancellation notification
       batch.set(
