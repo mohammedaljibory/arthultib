@@ -1,4 +1,4 @@
-// LUXURY MEDICAL STORE - FORMAL ELEGANT DESIGN
+// MEDICAL PROFESSIONAL STORE - CLEAN TRUSTED DESIGN
 
 import 'dart:math';
 
@@ -15,17 +15,36 @@ import '../models/item.dart';
 import '../screens/cartPage_m.dart';
 import '../screens/categoryItemPage.dart';
 
-// ============= LUXURY COLORS =============
-class LuxuryColors {
-  static const Color gold = Color(0xFFB8860B);
-  static const Color lightGold = Color(0xFFD4AF37);
-  static const Color champagne = Color(0xFFF7E7CE);
-  static const Color cream = Color(0xFFFAF9F6);
-  static const Color navy = Color(0xFF1B2838);
-  static const Color darkNavy = Color(0xFF0F1419);
-  static const Color charcoal = Color(0xFF2C3E50);
-  static const Color silver = Color(0xFFC0C0C0);
-  static const Color platinum = Color(0xFFE5E4E2);
+// ============= MEDICAL PROFESSIONAL COLORS =============
+class MedicalColors {
+  // Primary Medical Colors
+  static const Color primary = Color(0xFF0891B2);       // Medical Teal
+  static const Color primaryDark = Color(0xFF0E7490);   // Dark Teal
+  static const Color primaryLight = Color(0xFF22D3EE);  // Light Cyan
+
+  // Secondary Colors
+  static const Color secondary = Color(0xFF059669);     // Medical Green
+  static const Color secondaryLight = Color(0xFF10B981); // Emerald
+
+  // Neutral Colors
+  static const Color background = Color(0xFFF8FAFC);    // Light Gray
+  static const Color surface = Color(0xFFFFFFFF);       // White
+  static const Color cardBg = Color(0xFFFFFFFF);        // White
+
+  // Text Colors
+  static const Color textPrimary = Color(0xFF1E293B);   // Slate 800
+  static const Color textSecondary = Color(0xFF64748B); // Slate 500
+  static const Color textLight = Color(0xFF94A3B8);     // Slate 400
+
+  // Accent Colors
+  static const Color accent = Color(0xFF0EA5E9);        // Sky Blue
+  static const Color success = Color(0xFF22C55E);       // Green
+  static const Color warning = Color(0xFFF59E0B);       // Amber
+  static const Color error = Color(0xFFEF4444);         // Red
+
+  // Border
+  static const Color border = Color(0xFFE2E8F0);        // Slate 200
+  static const Color divider = Color(0xFFF1F5F9);       // Slate 100
 }
 
 // ============= DATA MODELS =============
@@ -408,31 +427,36 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     return Directionality(
       textDirection: languageProvider.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: LuxuryColors.cream,
-        endDrawer: _buildLuxuryDrawer(),
+        backgroundColor: MedicalColors.background,
+        endDrawer: _buildMedicalDrawer(),
         body: Stack(
           children: [
             RefreshIndicator(
               onRefresh: () async => _loadAllData(),
-              color: LuxuryColors.gold,
+              color: MedicalColors.primary,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
-                  // Luxury Hero Section
+                  // Medical Hero Section
                   SliverToBoxAdapter(
-                    child: _buildLuxuryHero(isDesktop, isMobile),
+                    child: _buildMedicalHero(isDesktop, isMobile),
+                  ),
+
+                  // Trust Badges Section
+                  SliverToBoxAdapter(
+                    child: _buildTrustBadges(isDesktop, isMobile),
                   ),
 
                   // Categories Section
                   SliverToBoxAdapter(
-                    child: _buildLuxuryCategoriesSection(isDesktop, isMobile),
+                    child: _buildMedicalCategoriesSection(isDesktop, isMobile),
                   ),
 
                   // Featured Products
                   SliverToBoxAdapter(
-                    child: _buildLuxuryProductSection(
-                      title: 'مجموعة مميزة',
-                      subtitle: 'اختيارات فاخرة لعملائنا',
+                    child: _buildMedicalProductSection(
+                      title: 'المنتجات المميزة',
+                      subtitle: 'منتجات طبية معتمدة وموثوقة',
                       products: _featuredProducts,
                       isLoading: _isLoadingProducts,
                       isDesktop: isDesktop,
@@ -444,55 +468,56 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                   // New Arrivals
                   if (_newArrivals.isNotEmpty)
                     SliverToBoxAdapter(
-                      child: _buildLuxuryProductSection(
+                      child: _buildMedicalProductSection(
                         title: 'وصل حديثاً',
-                        subtitle: 'أحدث المنتجات الطبية',
+                        subtitle: 'أحدث المستلزمات الطبية',
                         products: _newArrivals,
                         isLoading: false,
                         isDesktop: isDesktop,
                         isMobile: isMobile,
-                        isDark: true,
+                        accentColor: MedicalColors.secondary,
                       ),
                     ),
 
                   // Best Sellers
                   if (_bestSellers.isNotEmpty)
                     SliverToBoxAdapter(
-                      child: _buildLuxuryProductSection(
-                        title: 'الأكثر طلباً',
-                        subtitle: 'المنتجات المفضلة لدى عملائنا',
+                      child: _buildMedicalProductSection(
+                        title: 'الأكثر مبيعاً',
+                        subtitle: 'المنتجات الأكثر طلباً من عملائنا',
                         products: _bestSellers,
                         isLoading: false,
                         isDesktop: isDesktop,
                         isMobile: isMobile,
+                        accentColor: MedicalColors.accent,
                       ),
                     ),
 
-                  // Services Section
+                  // Why Choose Us Section
                   SliverToBoxAdapter(
-                    child: _buildLuxuryServicesSection(isDesktop, isMobile),
+                    child: _buildWhyChooseUsSection(isDesktop, isMobile),
                   ),
 
                   // Footer
                   SliverToBoxAdapter(
-                    child: _buildLuxuryFooter(isDesktop, isMobile),
+                    child: _buildMedicalFooter(isDesktop, isMobile),
                   ),
                 ],
               ),
             ),
 
-            // Luxury Navigation Bar
-            _buildLuxuryNavBar(isDesktop, isMobile, cartProvider),
+            // Medical Navigation Bar
+            _buildMedicalNavBar(isDesktop, isMobile, cartProvider),
           ],
         ),
       ),
     );
   }
 
-  // LUXURY HERO SECTION
-  Widget _buildLuxuryHero(bool isDesktop, bool isMobile) {
+  // MEDICAL HERO SECTION
+  Widget _buildMedicalHero(bool isDesktop, bool isMobile) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: MediaQuery.of(context).size.height * (isMobile ? 0.55 : 0.65),
       child: Stack(
         children: [
           if (_isLoadingBanners)
@@ -501,32 +526,32 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [LuxuryColors.darkNavy, LuxuryColors.navy],
+                  colors: [MedicalColors.primary, MedicalColors.primaryDark],
                 ),
               ),
               child: Center(
                 child: CircularProgressIndicator(
-                  color: LuxuryColors.gold,
-                  strokeWidth: 1,
+                  color: Colors.white,
+                  strokeWidth: 2,
                 ),
               ),
             )
           else if (_banners.isEmpty)
-            _buildDefaultLuxuryHero(isDesktop, isMobile)
+            _buildDefaultMedicalHero(isDesktop, isMobile)
           else
             PageView.builder(
               controller: _bannerController,
               itemCount: _banners.length,
               itemBuilder: (context, index) {
                 final banner = _banners[index];
-                return _buildBannerSlide(banner, isDesktop, isMobile);
+                return _buildMedicalBannerSlide(banner, isDesktop, isMobile);
               },
             ),
 
           // Page Indicators
           if (_banners.length > 1)
             Positioned(
-              bottom: 40,
+              bottom: 30,
               left: 0,
               right: 0,
               child: Row(
@@ -536,16 +561,16 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                     duration: Duration(milliseconds: 300),
                     width: _bannerController.hasClients &&
                         _bannerController.page?.round() == entry.key
-                        ? 30
+                        ? 24
                         : 8,
-                    height: 3,
+                    height: 8,
                     margin: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: _bannerController.hasClients &&
                           _bannerController.page?.round() == entry.key
-                          ? LuxuryColors.gold
+                          ? Colors.white
                           : Colors.white.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   );
                 }).toList(),
@@ -556,93 +581,237 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildDefaultLuxuryHero(bool isDesktop, bool isMobile) {
+  Widget _buildDefaultMedicalHero(bool isDesktop, bool isMobile) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [LuxuryColors.darkNavy, LuxuryColors.navy, LuxuryColors.charcoal],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            MedicalColors.primary,
+            MedicalColors.primaryDark,
+          ],
         ),
       ),
       child: Stack(
         children: [
-          // Subtle pattern overlay
+          // Medical pattern overlay
           Positioned.fill(
             child: Opacity(
-              opacity: 0.03,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      'https://www.transparenttextures.com/patterns/subtle-white-feathers.png',
-                    ),
-                    repeat: ImageRepeat.repeat,
-                  ),
-                ),
+              opacity: 0.05,
+              child: CustomPaint(
+                painter: MedicalPatternPainter(),
               ),
             ),
           ),
-          // Gold accent line
-          Positioned(
-            top: isDesktop ? 200 : 150,
-            left: isDesktop ? 60 : 20,
-            child: Container(
-              width: 80,
-              height: 2,
-              color: LuxuryColors.gold,
-            ),
-          ),
           // Content
-          Positioned(
-            bottom: isDesktop ? 120 : 80,
-            left: isDesktop ? 60 : 20,
-            right: isDesktop ? 60 : 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'أرض الطب',
-                  style: TextStyle(
-                    fontSize: isDesktop ? 64 : 40,
-                    fontWeight: FontWeight.w200,
-                    color: Colors.white,
-                    letterSpacing: 6,
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 60),
+                  // Medical Icon
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.local_hospital_rounded,
+                      size: isDesktop ? 60 : 48,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'التميز في المستلزمات الطبية',
-                  style: TextStyle(
-                    fontSize: isDesktop ? 22 : 16,
-                    color: LuxuryColors.gold,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 2,
-                  ),
-                ),
-                SizedBox(height: 40),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 40 : 30,
-                    vertical: isDesktop ? 18 : 14,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: LuxuryColors.gold, width: 1),
-                  ),
-                  child: Text(
-                    'استكشف المجموعة',
+                  SizedBox(height: 30),
+                  Text(
+                    'أرض الطب',
                     style: TextStyle(
-                      fontSize: isDesktop ? 14 : 12,
-                      color: LuxuryColors.gold,
+                      fontSize: isDesktop ? 52 : 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                       letterSpacing: 2,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'مستلزمات طبية موثوقة ومعتمدة',
+                    style: TextStyle(
+                      fontSize: isDesktop ? 20 : 16,
+                      color: Colors.white.withOpacity(0.9),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
+                  SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: () {
+                      _scrollController.animateTo(
+                        MediaQuery.of(context).size.height * 0.5,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: MedicalColors.primary,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 48 : 36,
+                        vertical: isDesktop ? 18 : 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'تصفح المنتجات',
+                          style: TextStyle(
+                            fontSize: isDesktop ? 16 : 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward_rounded, size: 20),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicalBannerSlide(Banner banner, bool isDesktop, bool isMobile) {
+    return GestureDetector(
+      onTap: () => _handleBannerTap(banner),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            banner.imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildDefaultMedicalHero(isDesktop, isMobile);
+            },
+          ),
+          // Gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  MedicalColors.primary.withOpacity(0.3),
+                  MedicalColors.primaryDark.withOpacity(0.8),
+                ],
+              ),
+            ),
+          ),
+          // Banner text
+          Positioned(
+            bottom: isDesktop ? 80 : 60,
+            left: isDesktop ? 80 : 24,
+            right: isDesktop ? 80 : 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: MedicalColors.secondary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'عرض خاص',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
+                SizedBox(height: 16),
+                Text(
+                  banner.titleAr,
+                  style: TextStyle(
+                    fontSize: isDesktop ? 42 : 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                if (banner.subtitleAr != null) ...[
+                  SizedBox(height: 12),
+                  Text(
+                    banner.subtitleAr!,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 18 : 14,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Trust Badges Section
+  Widget _buildTrustBadges(bool isDesktop, bool isMobile) {
+    final badges = [
+      {'icon': Icons.verified_outlined, 'text': 'منتجات أصلية 100%'},
+      {'icon': Icons.local_shipping_outlined, 'text': 'توصيل سريع'},
+      {'icon': Icons.support_agent_outlined, 'text': 'دعم 24/7'},
+      {'icon': Icons.security_outlined, 'text': 'دفع آمن'},
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      color: MedicalColors.surface,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 20),
+        child: Row(
+          children: badges.map((badge) {
+            return Container(
+              margin: EdgeInsets.only(left: isDesktop ? 60 : 24),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: MedicalColors.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      badge['icon'] as IconData,
+                      color: MedicalColors.primary,
+                      size: 22,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    badge['text'] as String,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: MedicalColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -740,20 +909,20 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     }
   }
 
-  // LUXURY CATEGORIES SECTION
-  Widget _buildLuxuryCategoriesSection(bool isDesktop, bool isMobile) {
+  // MEDICAL CATEGORIES SECTION
+  Widget _buildMedicalCategoriesSection(bool isDesktop, bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 80 : 20,
-        vertical: isDesktop ? 100 : 60,
+        vertical: isDesktop ? 60 : 40,
       ),
-      color: Colors.white,
+      color: MedicalColors.background,
       child: Column(
         children: [
           // Section Header
-          _buildLuxurySectionHeader(
-            title: 'الأقسام',
-            subtitle: 'اختر من مجموعتنا المتنوعة',
+          _buildMedicalSectionHeader(
+            title: 'الأقسام الطبية',
+            subtitle: 'تصفح حسب التخصص',
             onViewAll: () {
               Navigator.push(
                 context,
@@ -761,13 +930,13 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
               );
             },
           ),
-          SizedBox(height: isDesktop ? 60 : 40),
+          SizedBox(height: isDesktop ? 40 : 24),
 
           if (_isLoadingCategories)
             Center(
               child: CircularProgressIndicator(
-                color: LuxuryColors.gold,
-                strokeWidth: 1,
+                color: MedicalColors.primary,
+                strokeWidth: 2,
               ),
             )
           else if (_categories.isEmpty)
@@ -778,14 +947,14 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: isDesktop ? 4 : 2,
-                childAspectRatio: isDesktop ? 1.0 : 0.9,
-                crossAxisSpacing: isDesktop ? 30 : 16,
-                mainAxisSpacing: isDesktop ? 30 : 16,
+                childAspectRatio: isDesktop ? 1.1 : 1.0,
+                crossAxisSpacing: isDesktop ? 24 : 12,
+                mainAxisSpacing: isDesktop ? 24 : 12,
               ),
               itemCount: _categories.length,
               itemBuilder: (context, index) {
                 final category = _categories[index];
-                return _buildLuxuryCategoryCard(category, isDesktop);
+                return _buildMedicalCategoryCard(category, isDesktop);
               },
             ),
         ],
@@ -793,7 +962,7 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildLuxuryCategoryCard(Category category, bool isDesktop) {
+  Widget _buildMedicalCategoryCard(Category category, bool isDesktop) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -810,39 +979,31 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
         },
         child: Container(
           decoration: BoxDecoration(
-            color: LuxuryColors.cream,
-            border: Border.all(color: Colors.grey.shade200),
+            color: MedicalColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Stack(
             children: [
-              // Background image if available
-              if (category.imageUrl != null)
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: 0.08,
-                    child: Image.network(
-                      category.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(),
-                    ),
-                  ),
-                ),
               // Content
               Padding(
-                padding: EdgeInsets.all(isDesktop ? 24 : 16),
+                padding: EdgeInsets.all(isDesktop ? 20 : 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon container with gold border
+                    // Icon container
                     Container(
-                      width: isDesktop ? 70 : 56,
-                      height: isDesktop ? 70 : 56,
+                      width: isDesktop ? 64 : 52,
+                      height: isDesktop ? 64 : 52,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: LuxuryColors.gold.withOpacity(0.5),
-                          width: 1,
-                        ),
+                        color: MedicalColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
                         child: Text(
@@ -851,40 +1012,35 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                         ),
                       ),
                     ),
-                    SizedBox(height: isDesktop ? 20 : 14),
+                    SizedBox(height: isDesktop ? 16 : 12),
                     Text(
                       category.nameAr,
                       style: TextStyle(
-                        fontSize: isDesktop ? 16 : 14,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                        color: LuxuryColors.navy,
+                        fontSize: isDesktop ? 15 : 13,
+                        fontWeight: FontWeight.w600,
+                        color: MedicalColors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      '${category.itemCount} منتج',
-                      style: TextStyle(
-                        fontSize: isDesktop ? 12 : 11,
-                        color: LuxuryColors.gold,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.5,
+                    SizedBox(height: 6),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: MedicalColors.secondary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${category.itemCount} منتج',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: MedicalColors.secondary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
-                ),
-              ),
-              // Hover line indicator
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 3,
-                  color: LuxuryColors.gold.withOpacity(0.3),
                 ),
               ),
             ],
@@ -894,8 +1050,8 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // LUXURY PRODUCT SECTION
-  Widget _buildLuxuryProductSection({
+  // MEDICAL PRODUCT SECTION
+  Widget _buildMedicalProductSection({
     required String title,
     required String subtitle,
     required List<EnhancedItem> products,
@@ -903,20 +1059,20 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     required bool isDesktop,
     required bool isMobile,
     bool showAllLink = false,
-    bool isDark = false,
+    Color accentColor = MedicalColors.primary,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 80 : 20,
-        vertical: isDesktop ? 100 : 60,
+        vertical: isDesktop ? 60 : 40,
       ),
-      color: isDark ? LuxuryColors.navy : LuxuryColors.cream,
+      color: MedicalColors.surface,
       child: Column(
         children: [
-          _buildLuxurySectionHeader(
+          _buildMedicalSectionHeader(
             title: title,
             subtitle: subtitle,
-            isLight: isDark,
+            accentColor: accentColor,
             onViewAll: showAllLink
                 ? () {
               Navigator.push(
@@ -926,33 +1082,32 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
             }
                 : null,
           ),
-          SizedBox(height: isDesktop ? 60 : 40),
+          SizedBox(height: isDesktop ? 40 : 24),
 
           if (isLoading)
             Center(
               child: CircularProgressIndicator(
-                color: LuxuryColors.gold,
-                strokeWidth: 1,
+                color: MedicalColors.primary,
+                strokeWidth: 2,
               ),
             )
           else if (products.isEmpty)
             _buildEmptyState(
               'لا توجد منتجات متاحة',
-              Icons.shopping_bag_outlined,
-              isDark: isDark,
+              Icons.medical_services_outlined,
             )
           else
             Container(
-              height: isDesktop ? 480 : 400,
+              height: isDesktop ? 420 : 340,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
                   return Container(
-                    width: isDesktop ? 320 : 220,
-                    margin: EdgeInsets.only(left: isDesktop ? 30 : 16),
-                    child: _buildLuxuryProductCard(product, isDesktop, isDark),
+                    width: isDesktop ? 280 : 200,
+                    margin: EdgeInsets.only(left: isDesktop ? 20 : 12),
+                    child: _buildMedicalProductCard(product, isDesktop, accentColor),
                   );
                 },
               ),
@@ -962,8 +1117,8 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // LUXURY PRODUCT CARD
-  Widget _buildLuxuryProductCard(EnhancedItem product, bool isDesktop, bool isDark) {
+  // MEDICAL PRODUCT CARD
+  Widget _buildMedicalProductCard(EnhancedItem product, bool isDesktop, Color accentColor) {
     final hasDiscount = product.discount != null && product.discount! > 0;
 
     return MouseRegion(
@@ -985,10 +1140,15 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
         },
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? LuxuryColors.charcoal : Colors.white,
-            border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade200,
-            ),
+            color: MedicalColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1000,28 +1160,40 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                   children: [
                     Container(
                       width: double.infinity,
-                      color: isDark ? LuxuryColors.navy : LuxuryColors.cream,
-                      child: product.thumbnail != null
-                          ? Image.network(
-                        product.thumbnail!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
-                            child: Icon(
-                              Icons.medical_services_outlined,
-                              size: 40,
-                              color: LuxuryColors.silver,
-                            ),
-                          );
-                        },
-                      )
-                          : Center(
-                        child: Icon(
-                          Icons.medical_services_outlined,
-                          size: 40,
-                          color: LuxuryColors.silver,
+                      decoration: BoxDecoration(
+                        color: MedicalColors.background,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                        child: product.thumbnail != null
+                            ? Image.network(
+                          product.thumbnail!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(
+                                Icons.medical_services_outlined,
+                                size: 48,
+                                color: MedicalColors.textLight,
+                              ),
+                            );
+                          },
+                        )
+                            : Center(
+                          child: Icon(
+                            Icons.medical_services_outlined,
+                            size: 48,
+                            color: MedicalColors.textLight,
+                          ),
                         ),
                       ),
                     ),
@@ -1035,36 +1207,69 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                         children: [
                           if (hasDiscount)
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              color: LuxuryColors.gold,
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: MedicalColors.error,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               child: Text(
                                 '-${product.discount!.toInt()}%',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                          if (product.isNewArrival && !hasDiscount) ...[
+                          if (product.isNewArrival && !hasDiscount)
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              color: LuxuryColors.navy,
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: MedicalColors.secondary,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               child: Text(
                                 'جديد',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                          ],
                         ],
                       ),
                     ),
+
+                    // Stock indicator
+                    if (!product.inStock)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(16),
+                              topRight: Radius.circular(16),
+                            ),
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: MedicalColors.error,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'نفد المخزون',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -1073,7 +1278,7 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: EdgeInsets.all(isDesktop ? 20 : 16),
+                  padding: EdgeInsets.all(isDesktop ? 16 : 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1083,77 +1288,70 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                         children: [
                           if (product.brand != null)
                             Text(
-                              product.brand!.toUpperCase(),
+                              product.brand!,
                               style: TextStyle(
-                                fontSize: 10,
-                                color: LuxuryColors.gold,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1.5,
+                                fontSize: 11,
+                                color: accentColor,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          SizedBox(height: 6),
+                          SizedBox(height: 4),
                           Text(
                             product.nameAr ?? product.name,
                             style: TextStyle(
-                              fontSize: isDesktop ? 15 : 14,
-                              fontWeight: FontWeight.w400,
-                              color: isDark ? Colors.white : LuxuryColors.navy,
-                              height: 1.4,
+                              fontSize: isDesktop ? 14 : 13,
+                              fontWeight: FontWeight.w600,
+                              color: MedicalColors.textPrimary,
+                              height: 1.3,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (hasDiscount)
-                                    Text(
-                                      product.formattedPrice,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        decoration: TextDecoration.lineThrough,
-                                        color: isDark ? Colors.white38 : Colors.grey,
-                                      ),
-                                    ),
-                                  Text(
-                                    '${product.currencySymbol} ${hasDiscount ? product.discountedPrice.toStringAsFixed(0) : product.salePrice1.toStringAsFixed(0)}',
-                                    style: TextStyle(
-                                      fontSize: isDesktop ? 18 : 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (product.inStock)
-                                GestureDetector(
-                                  onTap: () => _showQuantityDialog(product),
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 18,
-                                      color: isDark ? LuxuryColors.gold : LuxuryColors.navy,
-                                    ),
+                              if (hasDiscount)
+                                Text(
+                                  product.formattedPrice,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    decoration: TextDecoration.lineThrough,
+                                    color: MedicalColors.textLight,
                                   ),
                                 ),
+                              Text(
+                                '${hasDiscount ? product.discountedPrice.toStringAsFixed(0) : product.salePrice1.toStringAsFixed(0)} ${product.currencySymbol}',
+                                style: TextStyle(
+                                  fontSize: isDesktop ? 16 : 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: MedicalColors.primary,
+                                ),
+                              ),
                             ],
                           ),
+                          if (product.inStock)
+                            GestureDetector(
+                              onTap: () => _showQuantityDialog(product),
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.add_shopping_cart_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ],
@@ -1167,95 +1365,115 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildLuxurySectionHeader({
+  Widget _buildMedicalSectionHeader({
     required String title,
     required String subtitle,
-    bool isLight = false,
+    Color accentColor = MedicalColors.primary,
     VoidCallback? onViewAll,
   }) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 2,
-                  color: LuxuryColors.gold,
+                  width: 4,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                SizedBox(height: 16),
+                SizedBox(width: 12),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 2,
-                    color: isLight ? Colors.white : LuxuryColors.navy,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isLight ? Colors.white60 : Colors.grey[600],
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 0.5,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: MedicalColors.textPrimary,
                   ),
                 ),
               ],
             ),
-            if (onViewAll != null)
-              TextButton(
-                onPressed: onViewAll,
-                child: Row(
-                  children: [
-                    Text(
-                      'عرض الكل',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: LuxuryColors.gold,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(
-                      Icons.arrow_forward,
-                      size: 16,
-                      color: LuxuryColors.gold,
-                    ),
-                  ],
+            SizedBox(height: 6),
+            Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: MedicalColors.textSecondary,
                 ),
               ),
+            ),
           ],
         ),
+        if (onViewAll != null)
+          TextButton(
+            onPressed: onViewAll,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              backgroundColor: accentColor.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  'عرض الكل',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: accentColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: accentColor,
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
 
   Widget _buildEmptyState(String message, IconData icon, {bool isDark = false}) {
     return Center(
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 48,
-            color: isDark ? Colors.white24 : Colors.grey[300],
-          ),
-          SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              color: isDark ? Colors.white38 : Colors.grey[600],
-              fontSize: 15,
-              fontWeight: FontWeight.w300,
+      child: Padding(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: MedicalColors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 48,
+                color: MedicalColors.primary,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 16),
+            Text(
+              message,
+              style: TextStyle(
+                color: MedicalColors.textSecondary,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1274,115 +1492,120 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           backgroundColor: Colors.white,
           child: Container(
-            padding: EdgeInsets.all(32),
-            width: 380,
+            padding: EdgeInsets.all(24),
+            width: 340,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Product image
                 Container(
-                  width: 40,
-                  height: 2,
-                  color: LuxuryColors.gold,
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: MedicalColors.background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: product.thumbnail != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(product.thumbnail!, fit: BoxFit.cover),
+                        )
+                      : Icon(Icons.medical_services_outlined, size: 40, color: MedicalColors.textLight),
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 Text(
                   'إضافة إلى السلة',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 1,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: MedicalColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 8),
                 Text(
                   product.nameAr ?? product.name,
                   style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[700],
+                    fontSize: 14,
+                    color: MedicalColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (quantity > 1) setState(() => quantity--);
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Icon(Icons.remove, size: 18),
-                      ),
-                    ),
-                    Container(
-                      width: 80,
-                      height: 44,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: Colors.grey.shade300),
-                          bottom: BorderSide(color: Colors.grey.shade300),
-                        ),
-                      ),
-                      child: Text(
-                        '$quantity',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (quantity < product.number) setState(() => quantity++);
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Icon(Icons.add, size: 18),
-                      ),
-                    ),
-                  ],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 24),
+                // Quantity selector
+                Container(
+                  decoration: BoxDecoration(
+                    color: MedicalColors.background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          if (quantity > 1) setState(() => quantity--);
+                        },
+                        icon: Icon(Icons.remove_rounded),
+                        color: quantity > 1 ? MedicalColors.primary : MedicalColors.textLight,
+                      ),
+                      Container(
+                        width: 60,
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$quantity',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: MedicalColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (quantity < product.number) setState(() => quantity++);
+                        },
+                        icon: Icon(Icons.add_rounded),
+                        color: quantity < product.number ? MedicalColors.primary : MedicalColors.textLight,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16),
                 Text(
                   '${(product.discountedPrice * quantity).toStringAsFixed(0)} ${product.currencySymbol}',
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: LuxuryColors.navy,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: MedicalColors.primary,
                   ),
                 ),
-                SizedBox(height: 32),
+                SizedBox(height: 24),
                 Row(
                   children: [
                     Expanded(
-                      child: TextButton(
+                      child: OutlinedButton(
                         onPressed: () => Navigator.pop(context),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: MedicalColors.border),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: Text(
                           'إلغاء',
                           style: TextStyle(
-                            color: Colors.grey[600],
-                            letterSpacing: 0.5,
+                            color: MedicalColors.textSecondary,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 16),
+                    SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
@@ -1390,15 +1613,21 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('تمت الإضافة إلى السلة'),
-                              backgroundColor: LuxuryColors.navy,
+                              content: Row(
+                                children: [
+                                  Icon(Icons.check_circle_rounded, color: Colors.white),
+                                  SizedBox(width: 12),
+                                  Text('تمت الإضافة إلى السلة'),
+                                ],
+                              ),
+                              backgroundColor: MedicalColors.success,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               action: SnackBarAction(
                                 label: 'عرض السلة',
-                                textColor: LuxuryColors.gold,
+                                textColor: Colors.white,
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -1410,17 +1639,17 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: LuxuryColors.navy,
+                          backgroundColor: MedicalColors.primary,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
                         ),
                         child: Text(
                           'إضافة',
-                          style: TextStyle(letterSpacing: 1),
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -1438,27 +1667,43 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
-          padding: EdgeInsets.all(40),
+          padding: EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 40,
-                height: 2,
-                color: LuxuryColors.gold,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: MedicalColors.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.lock_outline_rounded,
+                  size: 40,
+                  color: MedicalColors.primary,
+                ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 20),
               Text(
                 'تسجيل الدخول مطلوب',
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 1,
+                  fontWeight: FontWeight.bold,
+                  color: MedicalColors.textPrimary,
                 ),
               ),
-              SizedBox(height: 32),
+              SizedBox(height: 8),
+              Text(
+                'يجب تسجيل الدخول لإضافة المنتجات إلى السلة',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: MedicalColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -1467,17 +1712,17 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
                     Navigator.pushNamed(context, '/sign-in');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: LuxuryColors.navy,
+                    backgroundColor: MedicalColors.primary,
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
                   child: Text(
                     'تسجيل الدخول',
-                    style: TextStyle(letterSpacing: 1),
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -1488,222 +1733,284 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // LUXURY NAVIGATION BAR
-  Widget _buildLuxuryNavBar(bool isDesktop, bool isMobile, CartProvider cartProvider) {
+  // MEDICAL NAVIGATION BAR
+  Widget _buildMedicalNavBar(bool isDesktop, bool isMobile, CartProvider cartProvider) {
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
-        height: isDesktop ? 90 : 75,
+        height: isDesktop ? 80 : 70,
         decoration: BoxDecoration(
           color: _isScrolled
-              ? Colors.white.withOpacity(0.98)
+              ? Colors.white
               : Colors.transparent,
-          border: Border(
-            bottom: BorderSide(
-              color: _isScrolled ? LuxuryColors.platinum : Colors.transparent,
-              width: 1,
-            ),
-          ),
+          boxShadow: _isScrolled
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ]
+              : [],
         ),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: _isScrolled ? 10 : 0,
-              sigmaY: _isScrolled ? 10 : 0,
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 80 : 20,
-                vertical: 20,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (isMobile)
-                    Builder(
-                      builder: (context) => IconButton(
-                        icon: Icon(
-                          Icons.menu,
-                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
-                        ),
-                        onPressed: () => Scaffold.of(context).openEndDrawer(),
-                      ),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 80 : 16,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Menu button for mobile
+              if (isMobile)
+                Builder(
+                  builder: (context) => Container(
+                    decoration: BoxDecoration(
+                      color: _isScrolled ? MedicalColors.background : Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  // Logo
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.menu_rounded,
+                        color: _isScrolled ? MedicalColors.primary : Colors.white,
+                      ),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    ),
+                  ),
+                ),
+              // Logo
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: _isScrolled ? MedicalColors.primary : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.local_hospital_rounded,
+                      color: _isScrolled ? Colors.white : MedicalColors.primary,
+                      size: isDesktop ? 24 : 20,
+                    ),
+                  ),
+                  SizedBox(width: 10),
                   Text(
                     'أرض الطب',
                     style: TextStyle(
-                      fontSize: isDesktop ? 26 : 20,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 4,
-                      color: _isScrolled ? LuxuryColors.navy : Colors.white,
+                      fontSize: isDesktop ? 22 : 18,
+                      fontWeight: FontWeight.bold,
+                      color: _isScrolled ? MedicalColors.textPrimary : Colors.white,
                     ),
                   ),
-                  // Actions
-                  Row(
+                ],
+              ),
+              // Actions
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _isScrolled ? MedicalColors.background : Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.search_rounded,
+                        color: _isScrolled ? MedicalColors.textPrimary : Colors.white,
+                        size: 22,
+                      ),
+                      onPressed: () => Navigator.pushNamed(context, '/search'),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _isScrolled ? MedicalColors.background : Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.person_outline_rounded,
+                        color: _isScrolled ? MedicalColors.textPrimary : Colors.white,
+                        size: 22,
+                      ),
+                      onPressed: () => Navigator.pushNamed(context, '/account'),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Stack(
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.search,
-                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
-                          size: 22,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _isScrolled ? MedicalColors.primary : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        onPressed: () => Navigator.pushNamed(context, '/search'),
-                      ),
-                      SizedBox(width: 4),
-                      IconButton(
-                        icon: Icon(
-                          Icons.person_outline,
-                          color: _isScrolled ? LuxuryColors.navy : Colors.white,
-                          size: 22,
-                        ),
-                        onPressed: () => Navigator.pushNamed(context, '/account'),
-                      ),
-                      SizedBox(width: 4),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.shopping_bag_outlined,
-                              color: _isScrolled ? LuxuryColors.navy : Colors.white,
-                              size: 22,
-                            ),
-                            onPressed: () => Navigator.pushNamed(context, '/cart'),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.shopping_cart_outlined,
+                            color: _isScrolled ? Colors.white : MedicalColors.primary,
+                            size: 22,
                           ),
-                          if (cartProvider.itemCount > 0)
-                            Positioned(
-                              right: 6,
-                              top: 6,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: LuxuryColors.gold,
-                                  shape: BoxShape.circle,
-                                ),
+                          onPressed: () => Navigator.pushNamed(context, '/cart'),
+                        ),
+                      ),
+                      if (cartProvider.itemCount > 0)
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: MedicalColors.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '${cartProvider.itemCount}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                        ),
                     ],
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // LUXURY SERVICES SECTION
-  Widget _buildLuxuryServicesSection(bool isDesktop, bool isMobile) {
-    final services = [
+  // WHY CHOOSE US SECTION
+  Widget _buildWhyChooseUsSection(bool isDesktop, bool isMobile) {
+    final features = [
       {
-        'icon': Icons.local_shipping_outlined,
-        'title': 'توصيل فاخر',
-        'subtitle': 'خدمة توصيل سريعة ومميزة'
+        'icon': Icons.verified_user_outlined,
+        'title': 'منتجات معتمدة',
+        'subtitle': 'جميع منتجاتنا حاصلة على شهادات الجودة العالمية',
+        'color': MedicalColors.primary,
       },
       {
-        'icon': Icons.verified_outlined,
-        'title': 'جودة مضمونة',
-        'subtitle': 'منتجات أصلية 100%'
+        'icon': Icons.local_shipping_outlined,
+        'title': 'توصيل سريع',
+        'subtitle': 'نوصل طلبك بأسرع وقت ممكن لجميع المحافظات',
+        'color': MedicalColors.secondary,
       },
       {
         'icon': Icons.support_agent_outlined,
-        'title': 'دعم متميز',
-        'subtitle': 'خدمة عملاء على مدار الساعة'
+        'title': 'دعم متخصص',
+        'subtitle': 'فريق دعم فني متخصص متاح على مدار الساعة',
+        'color': MedicalColors.accent,
       },
       {
-        'icon': Icons.card_giftcard_outlined,
-        'title': 'عروض حصرية',
-        'subtitle': 'خصومات خاصة لعملائنا'
+        'icon': Icons.price_check_outlined,
+        'title': 'أسعار تنافسية',
+        'subtitle': 'أفضل الأسعار مع ضمان الجودة العالية',
+        'color': MedicalColors.warning,
       },
     ];
 
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 80 : 20,
-        vertical: isDesktop ? 100 : 60,
+        vertical: isDesktop ? 80 : 50,
       ),
-      color: Colors.white,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            MedicalColors.primary.withOpacity(0.03),
+            MedicalColors.background,
+          ],
+        ),
+      ),
       child: Column(
         children: [
-          Container(
-            width: 40,
-            height: 2,
-            color: LuxuryColors.gold,
-          ),
-          SizedBox(height: 16),
           Text(
-            'لماذا نحن',
+            'لماذا تختارنا؟',
             style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              color: LuxuryColors.navy,
+              fontSize: isDesktop ? 28 : 22,
+              fontWeight: FontWeight.bold,
+              color: MedicalColors.textPrimary,
             ),
           ),
-          SizedBox(height: isDesktop ? 60 : 40),
+          SizedBox(height: 8),
+          Text(
+            'نقدم لك أفضل تجربة تسوق للمستلزمات الطبية',
+            style: TextStyle(
+              fontSize: 14,
+              color: MedicalColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: isDesktop ? 50 : 30),
           GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: isDesktop ? 4 : 2,
-              childAspectRatio: isDesktop ? 1.2 : 1.0,
-              crossAxisSpacing: isDesktop ? 40 : 20,
-              mainAxisSpacing: isDesktop ? 40 : 20,
+              childAspectRatio: isDesktop ? 1.0 : 0.85,
+              crossAxisSpacing: isDesktop ? 24 : 12,
+              mainAxisSpacing: isDesktop ? 24 : 12,
             ),
-            itemCount: services.length,
+            itemCount: features.length,
             itemBuilder: (context, index) {
-              final service = services[index];
+              final feature = features[index];
               return Container(
-                padding: EdgeInsets.all(isDesktop ? 30 : 20),
+                padding: EdgeInsets.all(isDesktop ? 24 : 16),
                 decoration: BoxDecoration(
-                  color: LuxuryColors.cream,
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: MedicalColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 15,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: isDesktop ? 60 : 48,
-                      height: isDesktop ? 60 : 48,
+                      width: isDesktop ? 64 : 52,
+                      height: isDesktop ? 64 : 52,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: LuxuryColors.gold.withOpacity(0.5),
-                          width: 1,
-                        ),
+                        color: (feature['color'] as Color).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
-                        service['icon'] as IconData,
-                        size: isDesktop ? 26 : 22,
-                        color: LuxuryColors.gold,
+                        feature['icon'] as IconData,
+                        size: isDesktop ? 30 : 26,
+                        color: feature['color'] as Color,
                       ),
                     ),
                     SizedBox(height: 16),
                     Text(
-                      service['title'] as String,
+                      feature['title'] as String,
                       style: TextStyle(
                         fontSize: isDesktop ? 16 : 14,
-                        fontWeight: FontWeight.w500,
-                        color: LuxuryColors.navy,
-                        letterSpacing: 0.5,
+                        fontWeight: FontWeight.bold,
+                        color: MedicalColors.textPrimary,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 8),
                     Text(
-                      service['subtitle'] as String,
+                      feature['subtitle'] as String,
                       style: TextStyle(
                         fontSize: isDesktop ? 13 : 11,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w300,
+                        color: MedicalColors.textSecondary,
+                        height: 1.4,
                       ),
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -1715,65 +2022,115 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // LUXURY FOOTER
-  Widget _buildLuxuryFooter(bool isDesktop, bool isMobile) {
+  // MEDICAL FOOTER
+  Widget _buildMedicalFooter(bool isDesktop, bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 80 : 20,
-        vertical: isDesktop ? 80 : 50,
+        horizontal: isDesktop ? 80 : 24,
+        vertical: isDesktop ? 60 : 40,
       ),
-      color: LuxuryColors.darkNavy,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            MedicalColors.primaryDark,
+            MedicalColors.primary,
+          ],
+        ),
+      ),
       child: Column(
         children: [
-          // Logo
-          Text(
-            'أرض الطب',
-            style: TextStyle(
-              fontSize: isDesktop ? 36 : 28,
-              fontWeight: FontWeight.w200,
-              color: Colors.white,
-              letterSpacing: 6,
-            ),
+          // Logo and tagline
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.local_hospital_rounded,
+                  color: MedicalColors.primary,
+                  size: 28,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'أرض الطب',
+                style: TextStyle(
+                  fontSize: isDesktop ? 28 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 16),
-          Container(
-            width: 60,
-            height: 1,
-            color: LuxuryColors.gold,
+          Text(
+            'شريكك الموثوق في المستلزمات الطبية',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.8),
+            ),
           ),
           SizedBox(height: 30),
-          Text(
-            'التميز في المستلزمات الطبية',
-            style: TextStyle(
-              fontSize: isDesktop ? 16 : 14,
-              color: LuxuryColors.gold,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 1,
-            ),
-          ),
-          SizedBox(height: 40),
+
           // Contact Info
-          Text(
-            'info@arthultib.com | +964 780 017 5770',
-            style: TextStyle(
-              fontSize: isDesktop ? 14 : 12,
-              color: Colors.white60,
-              letterSpacing: 0.5,
+          Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Wrap(
+              spacing: 30,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.email_outlined, color: Colors.white70, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'info@arthultib.com',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.phone_outlined, color: Colors.white70, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      '+964 780 017 5770',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 30),
+
+          // Divider
           Container(
             width: double.infinity,
             height: 1,
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withOpacity(0.2),
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 20),
+
+          // Copyright
           Text(
-            '© 2024 أرض الطب - جميع الحقوق محفوظة',
+            '© ${DateTime.now().year} أرض الطب - جميع الحقوق محفوظة',
             style: TextStyle(
-              fontSize: isDesktop ? 12 : 11,
-              color: Colors.white38,
-              letterSpacing: 0.5,
+              fontSize: 12,
+              color: Colors.white.withOpacity(0.6),
             ),
           ),
         ],
@@ -1781,8 +2138,8 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  // LUXURY DRAWER
-  Widget _buildLuxuryDrawer() {
+  // MEDICAL DRAWER
+  Widget _buildMedicalDrawer() {
     return Drawer(
       child: Container(
         color: Colors.white,
@@ -1791,57 +2148,82 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
             children: [
               // Header
               Container(
-                padding: EdgeInsets.all(40),
-                color: LuxuryColors.navy,
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [MedicalColors.primary, MedicalColors.primaryDark],
+                  ),
+                ),
                 width: double.infinity,
                 child: Column(
                   children: [
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.local_hospital_rounded,
+                        color: MedicalColors.primary,
+                        size: 32,
+                      ),
+                    ),
+                    SizedBox(height: 16),
                     Text(
                       'أرض الطب',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         color: Colors.white,
-                        fontWeight: FontWeight.w200,
-                        letterSpacing: 4,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 12),
-                    Container(
-                      width: 40,
-                      height: 1,
-                      color: LuxuryColors.gold,
+                    SizedBox(height: 4),
+                    Text(
+                      'مستلزمات طبية موثوقة',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
                     ),
                   ],
                 ),
               ),
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.symmetric(vertical: 20),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   children: [
-                    _buildDrawerItem(Icons.home_outlined, 'الرئيسية', () {
+                    _buildMedicalDrawerItem(Icons.home_rounded, 'الرئيسية', () {
                       Navigator.pop(context);
                     }),
-                    _buildDrawerItem(Icons.category_outlined, 'الأقسام', () {
+                    _buildMedicalDrawerItem(Icons.category_rounded, 'الأقسام', () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => AllCategoriesPage()),
                       );
                     }),
-                    _buildDrawerItem(Icons.shopping_bag_outlined, 'السلة', () {
+                    _buildMedicalDrawerItem(Icons.shopping_cart_rounded, 'السلة', () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => CartPage()),
                       );
                     }),
-                    _buildDrawerItem(Icons.person_outline, 'حسابي', () {
+                    _buildMedicalDrawerItem(Icons.person_rounded, 'حسابي', () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/account');
                     }),
-                    _buildDrawerItem(Icons.favorite_outline, 'المفضلة', () {
+                    _buildMedicalDrawerItem(Icons.favorite_rounded, 'المفضلة', () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/saved-items');
+                    }),
+                    Divider(height: 32),
+                    _buildMedicalDrawerItem(Icons.headset_mic_rounded, 'تواصل معنا', () {
+                      Navigator.pop(context);
+                      // Navigate to contact
                     }),
                   ],
                 ),
@@ -1853,19 +2235,30 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildMedicalDrawerItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: LuxuryColors.navy, size: 22),
+      leading: Container(
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: MedicalColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: MedicalColors.primary, size: 22),
+      ),
       title: Text(
         title,
         style: TextStyle(
           fontSize: 15,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w600,
+          color: MedicalColors.textPrimary,
         ),
       ),
       onTap: onTap,
-      contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      trailing: Icon(
+        Icons.chevron_left_rounded,
+        color: MedicalColors.textLight,
+      ),
     );
   }
 
@@ -1879,6 +2272,41 @@ class _EnhancedMedicalStorePageState extends State<MedicalStorePage>
   }
 }
 
+// Medical Pattern Painter for background
+class MedicalPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    // Draw plus signs pattern
+    const spacing = 60.0;
+    const plusSize = 12.0;
+
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        // Horizontal line of plus
+        canvas.drawLine(
+          Offset(x - plusSize / 2, y),
+          Offset(x + plusSize / 2, y),
+          paint,
+        );
+        // Vertical line of plus
+        canvas.drawLine(
+          Offset(x, y - plusSize / 2),
+          Offset(x, y + plusSize / 2),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 // Placeholder Pages
 class AllCategoriesPage extends StatelessWidget {
   @override
@@ -1886,7 +2314,7 @@ class AllCategoriesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('جميع الأقسام'),
-        backgroundColor: LuxuryColors.navy,
+        backgroundColor: MedicalColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -1901,7 +2329,7 @@ class AllProductsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('جميع المنتجات'),
-        backgroundColor: LuxuryColors.navy,
+        backgroundColor: MedicalColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -1918,7 +2346,11 @@ class ProductDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(item.nameAr ?? item.name)),
+      appBar: AppBar(
+        title: Text(item.nameAr ?? item.name),
+        backgroundColor: MedicalColors.primary,
+        foregroundColor: Colors.white,
+      ),
       body: Center(child: Text('Product: ${item.name}')),
     );
   }
