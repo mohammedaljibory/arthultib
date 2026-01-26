@@ -6,6 +6,7 @@ import '../providers/cart_provider.dart';
 import '../language_provider.dart';
 import '../models/user_model.dart';
 import '../services/order_service.dart';
+import 'address_selection_screen.dart';
 
 class CartPage extends StatefulWidget {
   @override
@@ -854,14 +855,22 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<Map<String, dynamic>?> _showLocationSelector(BuildContext context) async {
-    // Implement GPS location selection
-    // This would integrate with Geolocator and Geocoding packages
-    // For now, returning a mock location
-    return {
-      'address': 'النجف، حي السلام، شارع المدينة',
-      'latitude': 32.0,
-      'longitude': 44.3
-    };
+    // Navigate to AddressSelectionScreen for real GPS location selection
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddressSelectionScreen(),
+      ),
+    );
+
+    if (result != null) {
+      return {
+        'address': result['address'],
+        'latitude': result['latitude'],
+        'longitude': result['longitude'],
+      };
+    }
+    return null;
   }
 
   Future<String?> _showManualAddressDialog(BuildContext context) async {

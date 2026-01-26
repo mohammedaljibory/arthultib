@@ -11,10 +11,11 @@ class HomeSection extends StatefulWidget {
   _HomeSectionState createState() => _HomeSectionState();
 }
 
-class _HomeSectionState extends State<HomeSection> {
+class _HomeSectionState extends State<HomeSection> with WidgetsBindingObserver {
   PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
+  bool _isVisible = true;
 
   // Banners will be loaded from Firestore
   List<Map<String, dynamic>> _banners = [];
@@ -54,8 +55,19 @@ class _HomeSectionState extends State<HomeSection> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadBannersFromFirestore();
     _startAutoSlide();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Pause timer when app is backgrounded/paused to save resources
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _stopAutoSlide();
+    } else if (state == AppLifecycleState.resumed && _isVisible) {
+      _startAutoSlide();
+    }
   }
 
   Future<void> _loadBannersFromFirestore() async {
@@ -124,14 +136,18 @@ class _HomeSectionState extends State<HomeSection> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _stopAutoSlide();
     _pageController.dispose();
     super.dispose();
   }
 
   void _startAutoSlide() {
+    // Don't create multiple timers
+    if (_timer != null && _timer!.isActive) return;
+
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      if (_pageController.hasClients) {
+      if (_pageController.hasClients && _banners.isNotEmpty && _isVisible) {
         int nextPage = (_currentPage + 1) % _banners.length;
         _pageController.animateToPage(
           nextPage,
@@ -140,6 +156,11 @@ class _HomeSectionState extends State<HomeSection> {
         );
       }
     });
+  }
+
+  void _stopAutoSlide() {
+    _timer?.cancel();
+    _timer = null;
   }
 
   @override

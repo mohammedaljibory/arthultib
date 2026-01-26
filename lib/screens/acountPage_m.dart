@@ -87,50 +87,225 @@ class _AccountPageState extends State<AccountPage> {
 
   // Add these methods to handle button actions
   void _editProfile(BuildContext context, UserModel user) {
+    final nameController = TextEditingController(text: user.name);
+    final addressController = TextEditingController(text: user.address ?? '');
+    bool isLoading = false;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.green),
+              SizedBox(width: 10),
+              Text('تعديل الملف الشخصي'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'الاسم',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                SizedBox(height: 15),
+                TextField(
+                  controller: TextEditingController(text: user.email ?? user.phoneNumber ?? ''),
+                  decoration: InputDecoration(
+                    labelText: user.email != null ? 'البريد الإلكتروني' : 'رقم الهاتف',
+                    prefixIcon: Icon(user.email != null ? Icons.email_outlined : Icons.phone),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  enabled: false,
+                ),
+                SizedBox(height: 15),
+                TextField(
+                  controller: addressController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    labelText: 'العنوان',
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    hintText: 'المحافظة، المنطقة، الشارع...',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () {
+                nameController.dispose();
+                addressController.dispose();
+                Navigator.pop(dialogContext);
+              },
+              child: Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading ? null : () async {
+                final newName = nameController.text.trim();
+                final newAddress = addressController.text.trim();
+
+                if (newName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('الرجاء إدخال الاسم'), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
+
+                if (newName.length < 3) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('الاسم يجب أن يكون 3 أحرف على الأقل'), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
+
+                setState(() => isLoading = true);
+
+                try {
+                  // Update in Firestore
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .update({
+                    'name': newName,
+                    'address': newAddress.isNotEmpty ? newAddress : null,
+                    'lastUpdated': FieldValue.serverTimestamp(),
+                  });
+
+                  // Update local user in provider
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  authProvider.updateCurrentUser(user.copyWith(
+                    name: newName,
+                    address: newAddress.isNotEmpty ? newAddress : null,
+                  ));
+
+                  nameController.dispose();
+                  addressController.dispose();
+                  Navigator.pop(dialogContext);
+
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(
+                      content: Text('تم تحديث الملف الشخصي بنجاح'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  setState(() => isLoading = false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('حدث خطأ: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : Text('حفظ'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Cancel order method
+  void _cancelOrder(BuildContext context, OrderModel order) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text('تعديل الملف الشخصي'),
+        title: Row(
+          children: [
+            Icon(Icons.cancel, color: Colors.red),
+            SizedBox(width: 10),
+            Text('إلغاء الطلب'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: TextEditingController(text: user.name),
-              decoration: InputDecoration(
-                labelText: 'الاسم',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+            Text('هل أنت متأكد من إلغاء الطلب؟'),
+            SizedBox(height: 10),
+            Text(
+              'رقم الطلب: #${order.id.substring(0, 8)}',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
-            SizedBox(height: 15),
-            TextField(
-              controller: TextEditingController(text: user.phoneNumber),
-              decoration: InputDecoration(
-                labelText: 'رقم الهاتف',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              enabled: false, // Phone number cannot be changed
+            Text(
+              'المبلغ: ${order.totalAmount.toStringAsFixed(0)} د.ع',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text('تراجع'),
           ),
           ElevatedButton(
-            onPressed: () {
-              // TODO: Implement profile update
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('تم تحديث الملف الشخصي بنجاح'),
-                  backgroundColor: Colors.green,
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              // Show loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Container(
+                    padding: EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: Colors.red),
+                        SizedBox(height: 20),
+                        Text('جاري إلغاء الطلب...'),
+                      ],
+                    ),
+                  ),
                 ),
               );
+
+              try {
+                await _orderService.cancelOrder(order.id);
+                Navigator.pop(context); // Close loading
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم إلغاء الطلب بنجاح'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                Navigator.pop(context); // Close loading
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString().replaceAll('Exception: ', '')),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
-            child: Text('حفظ'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('نعم، إلغاء الطلب'),
           ),
         ],
       ),
@@ -675,6 +850,26 @@ class _AccountPageState extends State<AccountPage> {
                     ],
                   ),
                 ),
+
+                // Cancel Order Button (only for pending/processing orders)
+                if (order.status == 'pending' || order.status == 'processing')
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(top: 10),
+                    child: OutlinedButton.icon(
+                      onPressed: () => _cancelOrder(context, order),
+                      icon: Icon(Icons.cancel_outlined, size: 18),
+                      label: Text('إلغاء الطلب'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

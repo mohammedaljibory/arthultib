@@ -7,6 +7,39 @@ class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // Validate inventory before creating order
+  Future<Map<String, dynamic>> validateInventory(List<CartItem> items) async {
+    List<String> outOfStockItems = [];
+    List<String> insufficientStockItems = [];
+
+    for (var cartItem in items) {
+      try {
+        final doc = await _firestore.collection('items1').doc(cartItem.item.id).get();
+        if (!doc.exists) {
+          outOfStockItems.add(cartItem.item.name);
+          continue;
+        }
+
+        final data = doc.data()!;
+        final availableStock = (data['Number'] ?? 0) as int;
+
+        if (availableStock <= 0) {
+          outOfStockItems.add(cartItem.item.name);
+        } else if (availableStock < cartItem.quantity) {
+          insufficientStockItems.add('${cartItem.item.name} (متوفر: $availableStock)');
+        }
+      } catch (e) {
+        print('Error checking stock for ${cartItem.item.id}: $e');
+      }
+    }
+
+    return {
+      'isValid': outOfStockItems.isEmpty && insufficientStockItems.isEmpty,
+      'outOfStock': outOfStockItems,
+      'insufficientStock': insufficientStockItems,
+    };
+  }
+
   // Create a new order with enhanced structure
   Future<String> createOrder({
     required List<CartItem> items,
@@ -20,6 +53,18 @@ class OrderService {
     String? notes,
   }) async {
     try {
+      // Validate inventory first
+      final inventoryCheck = await validateInventory(items);
+      if (!inventoryCheck['isValid']) {
+        String errorMessage = '';
+        if ((inventoryCheck['outOfStock'] as List).isNotEmpty) {
+          errorMessage += 'منتجات غير متوفرة: ${(inventoryCheck['outOfStock'] as List).join(', ')}. ';
+        }
+        if ((inventoryCheck['insufficientStock'] as List).isNotEmpty) {
+          errorMessage += 'كمية غير كافية: ${(inventoryCheck['insufficientStock'] as List).join(', ')}';
+        }
+        throw Exception(errorMessage);
+      }
       // Generate order ID with timestamp
       final timestamp = DateTime.now();
       final orderId = 'ORD-${timestamp.millisecondsSinceEpoch}';
@@ -138,12 +183,14 @@ class OrderService {
         },
       );
 
-      // 4. Update inventory for each item
+      // 4. Update inventory for each item (decrement stock)
       for (var item in items) {
         final itemRef = _firestore.collection('items1').doc(item.item.id);
         batch.update(itemRef, {
+          'Number': FieldValue.increment(-item.quantity),
           'lastUpdated': FieldValue.serverTimestamp(),
           'lastSoldAt': FieldValue.serverTimestamp(),
+          'totalSold': FieldValue.increment(item.quantity),
         });
       }
 
@@ -384,9 +431,11 @@ class OrderService {
       for (var item in order.items) {
         final itemRef = _firestore.collection('items1').doc(item.productId);
 
-        // Increment the quantity back
+        // Increment the quantity back (restore stock)
         batch.update(itemRef, {
+          'Number': FieldValue.increment(item.quantity),
           'lastUpdated': FieldValue.serverTimestamp(),
+          'totalSold': FieldValue.increment(-item.quantity),
         });
       }
 
