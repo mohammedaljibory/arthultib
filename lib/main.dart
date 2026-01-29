@@ -136,7 +136,57 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: AuthStateHandler(),
+      // Use named routes for browser history support
+      initialRoute: '/',
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => AuthStateHandler(),
+            );
+          case '/store':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => MedicalStorePage(),
+            );
+          case '/sign-in':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => SignInScreen(),
+            );
+          case '/sign-up':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => SignUpScreen(),
+            );
+          case '/saved-items':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => SavedItemsPage(),
+            );
+          case '/cart':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => CartPage(),
+            );
+          case '/search':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => SearchPage(),
+            );
+          case '/account':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => AccountPage(),
+            );
+          default:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => AuthStateHandler(),
+            );
+        }
+      },
     );
   }
 }
@@ -175,32 +225,8 @@ class _AuthStateHandlerState extends State<AuthStateHandler> {
             ),
           );
         }
-        return Navigator(
-          initialRoute: '/',
-          onGenerateRoute: (settings) {
-
-            switch (settings.name) {
-              case '/':
-                return MaterialPageRoute(builder: (_) => MainPage());
-              case '/store':
-                return MaterialPageRoute(builder: (_) => MedicalStorePage());
-              case '/sign-in':
-                return MaterialPageRoute(builder: (_) => SignInScreen());
-              case '/sign-up':
-                return MaterialPageRoute(builder: (_) => SignUpScreen());
-              case '/saved-items':
-                return MaterialPageRoute(builder: (_) => SavedItemsPage());
-              case '/cart':
-                return MaterialPageRoute(builder: (_) => CartPage());
-            case '/search':
-            return MaterialPageRoute(builder: (_) => SearchPage());
-            case '/account':
-            return MaterialPageRoute(builder: (_) => AccountPage());
-              default:
-                return MaterialPageRoute(builder: (_) => MedicalStorePage());
-            }
-          },
-        );
+        // Return MainPage directly - routing handled by MaterialApp
+        return MainPage();
       },
     );
   }
